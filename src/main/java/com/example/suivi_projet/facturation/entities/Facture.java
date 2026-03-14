@@ -22,7 +22,7 @@ public class Facture {
     public Facture() {
     }
 
-    public Facture(int id, String code, Date dateFacture, Phase phase) {
+    public Facture( String code, Date dateFacture, Phase phase) {
         this.id = id;
         this.code = code;
         this.dateFacture = dateFacture;
