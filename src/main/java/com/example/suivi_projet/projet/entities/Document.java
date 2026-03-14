@@ -21,7 +21,7 @@ public class Document {
     }
 
     public Document( String code, String libelle, String description, String chemin, Projet projet) {
-        this.id = id;
+
         this.code = code;
         this.libelle = libelle;
         this.description = description;

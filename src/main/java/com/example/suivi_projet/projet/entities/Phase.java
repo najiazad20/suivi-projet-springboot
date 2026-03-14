@@ -33,7 +33,7 @@ public class Phase {
     }
 
     public Phase(String code, String libelle, String description, Date dateDebut, Date dateFin, double montant, boolean etatRealisation, boolean etatFacturation, boolean etatPaiement, Projet projet) {
-        this.id = id;
+
         this.code = code;
         this.libelle = libelle;
         this.description = description;
