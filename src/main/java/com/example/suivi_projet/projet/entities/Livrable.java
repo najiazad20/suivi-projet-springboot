@@ -22,7 +22,7 @@ public class Livrable {
     }
 
     public Livrable( String code, String libelle, String description, String chemin, Phase phase) {
-        this.id = id;
+
         this.code = code;
         this.libelle = libelle;
         this.description = description;

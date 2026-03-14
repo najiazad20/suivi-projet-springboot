@@ -35,7 +35,7 @@ public class Projet {
     public Projet(String code, String nom, String description,
                   Date dateDebut, Date dateFin, double montant,
                   Organisme organisme, Employe chefProjet) {
-        this.id = id;
+
         this.code = code;
         this.nom = nom;
         this.description = description;
