@@ -20,7 +20,7 @@ public class Document {
     public Document() {
     }
 
-    public Document(int id, String code, String libelle, String description, String chemin, Projet projet) {
+    public Document( String code, String libelle, String description, String chemin, Projet projet) {
         this.id = id;
         this.code = code;
         this.libelle = libelle;

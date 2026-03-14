@@ -26,7 +26,7 @@ public class LigneEmployePhase {
     public LigneEmployePhase() {
     }
 
-    public LigneEmployePhase(int id, Date dateDebut, Date dateFin, Employe employe, Phase phase) {
+    public LigneEmployePhase( Date dateDebut, Date dateFin, Employe employe, Phase phase) {
         this.id = id;
         this.dateDebut = dateDebut;
         this.dateFin = dateFin;

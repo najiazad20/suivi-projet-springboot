@@ -21,7 +21,7 @@ public class Livrable {
     public Livrable() {
     }
 
-    public Livrable(int id, String code, String libelle, String description, String chemin, Phase phase) {
+    public Livrable( String code, String libelle, String description, String chemin, Phase phase) {
         this.id = id;
         this.code = code;
         this.libelle = libelle;
