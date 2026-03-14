@@ -2,14 +2,14 @@ package com.example.suivi_projet.projet.entities;
 
 import com.example.suivi_projet.organisation.entities.Employe;
 import jakarta.persistence.*;
+
 import java.util.Date;
 
 @Entity
 public class LigneEmployePhase {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @EmbeddedId
+    private LigneEmployePhaseId id;
 
     @Temporal(TemporalType.DATE)
     private Date dateDebut;
@@ -18,27 +18,28 @@ public class LigneEmployePhase {
     private Date dateFin;
 
     @ManyToOne
+    @MapsId("employeId")
     private Employe employe;
 
     @ManyToOne
+    @MapsId("phaseId")
     private Phase phase;
 
     public LigneEmployePhase() {
     }
 
-    public LigneEmployePhase( Date dateDebut, Date dateFin, Employe employe, Phase phase) {
-        this.id = id;
+    public LigneEmployePhase(Date dateDebut, Date dateFin, Employe employe, Phase phase) {
         this.dateDebut = dateDebut;
         this.dateFin = dateFin;
         this.employe = employe;
         this.phase = phase;
     }
 
-    public int getId() {
+    public LigneEmployePhaseId getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(LigneEmployePhaseId id) {
         this.id = id;
     }
 
