@@ -17,8 +17,7 @@ public class Organisme {
     private String emailContact;
     private String siteWeb;
 
-    public Organisme(int id, String siteWeb, String emailContact, String nomContact, String telephone, String adresse, String nom, String code) {
-        this.id = id;
+    public Organisme(String siteWeb, String emailContact, String nomContact, String telephone, String adresse, String nom, String code) {
         this.siteWeb = siteWeb;
         this.emailContact = emailContact;
         this.nomContact = nomContact;

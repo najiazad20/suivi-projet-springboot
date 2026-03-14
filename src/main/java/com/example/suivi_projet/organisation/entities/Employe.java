@@ -24,9 +24,9 @@ public class Employe {
     public Employe() {
     }
 
-    public Employe(int id, String matricule, String nom, String prenom,
+    public Employe( String matricule, String nom, String prenom,
                    String telephone, String email, String login, String password, Profil profil) {
-        this.id = id;
+
         this.matricule = matricule;
         this.nom = nom;
         this.prenom = prenom;
