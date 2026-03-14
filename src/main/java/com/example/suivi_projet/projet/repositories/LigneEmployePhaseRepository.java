@@ -2,6 +2,7 @@ package com.example.suivi_projet.projet.repositories;
 
 import com.example.suivi_projet.projet.entities.LigneEmployePhase;
 import com.example.suivi_projet.projet.entities.LigneEmployePhaseId;
+import com.example.suivi_projet.projet.entities.Projet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
