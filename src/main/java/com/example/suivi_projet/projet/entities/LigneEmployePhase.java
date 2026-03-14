@@ -1,5 +1,6 @@
 package com.example.suivi_projet.projet.entities;
 
+import com.example.suivi_projet.organisation.entities.Employe;
 import jakarta.persistence.*;
 import java.util.Date;
 
