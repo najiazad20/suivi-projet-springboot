@@ -32,7 +32,7 @@ public class Projet {
     public Projet() {
     }
 
-    public Projet(int id, String code, String nom, String description,
+    public Projet(String code, String nom, String description,
                   Date dateDebut, Date dateFin, double montant,
                   Organisme organisme, Employe chefProjet) {
         this.id = id;
