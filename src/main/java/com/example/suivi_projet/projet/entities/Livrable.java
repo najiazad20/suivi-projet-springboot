@@ -13,7 +13,7 @@ public class Livrable {
     private String code;
     private String libelle;
     private String description;
-    private String cheminFichier;
+    private String chemin;
 
     @ManyToOne
     private Phase phase;
@@ -21,36 +21,60 @@ public class Livrable {
     public Livrable() {
     }
 
-    public Livrable(int id, String code, String libelle, String description, String cheminFichier, Phase phase) {
+    public Livrable( String code, String libelle, String description, String chemin, Phase phase) {
         this.id = id;
         this.code = code;
         this.libelle = libelle;
         this.description = description;
-        this.cheminFichier = cheminFichier;
+        this.chemin = chemin;
         this.phase = phase;
     }
 
-    public int getId() { return id; }
+    public int getId() {
+        return id;
+    }
 
-    public void setId(int id) { this.id = id; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getCode() { return code; }
+    public String getCode() {
+        return code;
+    }
 
-    public void setCode(String code) { this.code = code; }
+    public void setCode(String code) {
+        this.code = code;
+    }
 
-    public String getLibelle() { return libelle; }
+    public String getLibelle() {
+        return libelle;
+    }
 
-    public void setLibelle(String libelle) { this.libelle = libelle; }
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
 
-    public String getDescription() { return description; }
+    public String getDescription() {
+        return description;
+    }
 
-    public void setDescription(String description) { this.description = description; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public String getCheminFichier() { return cheminFichier; }
+    public String getChemin() {
+        return chemin;
+    }
 
-    public void setCheminFichier(String cheminFichier) { this.cheminFichier = cheminFichier; }
+    public void setChemin(String chemin) {
+        this.chemin = chemin;
+    }
 
-    public Phase getPhase() { return phase; }
+    public Phase getPhase() {
+        return phase;
+    }
 
-    public void setPhase(Phase phase) { this.phase = phase; }
+    public void setPhase(Phase phase) {
+        this.phase = phase;
+    }
 }

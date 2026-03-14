@@ -9,8 +9,10 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String nom;
-    private String cheminFichier;
+    private String code;
+    private String libelle;
+    private String description;
+    private String chemin;
 
     @ManyToOne
     private Projet projet;
@@ -18,26 +20,60 @@ public class Document {
     public Document() {
     }
 
-    public Document(int id, String nom, String cheminFichier, Projet projet) {
+    public Document( String code, String libelle, String description, String chemin, Projet projet) {
         this.id = id;
-        this.nom = nom;
-        this.cheminFichier = cheminFichier;
+        this.code = code;
+        this.libelle = libelle;
+        this.description = description;
+        this.chemin = chemin;
         this.projet = projet;
     }
 
-    public int getId() { return id; }
+    public int getId() {
+        return id;
+    }
 
-    public void setId(int id) { this.id = id; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public String getNom() { return nom; }
+    public String getCode() {
+        return code;
+    }
 
-    public void setNom(String nom) { this.nom = nom; }
+    public void setCode(String code) {
+        this.code = code;
+    }
 
-    public String getCheminFichier() { return cheminFichier; }
+    public String getLibelle() {
+        return libelle;
+    }
 
-    public void setCheminFichier(String cheminFichier) { this.cheminFichier = cheminFichier; }
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
 
-    public Projet getProjet() { return projet; }
+    public String getDescription() {
+        return description;
+    }
 
-    public void setProjet(Projet projet) { this.projet = projet; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getChemin() {
+        return chemin;
+    }
+
+    public void setChemin(String chemin) {
+        this.chemin = chemin;
+    }
+
+    public Projet getProjet() {
+        return projet;
+    }
+
+    public void setProjet(Projet projet) {
+        this.projet = projet;
+    }
 }
