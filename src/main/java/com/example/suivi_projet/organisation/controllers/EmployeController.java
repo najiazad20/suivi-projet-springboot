@@ -3,6 +3,7 @@ package com.example.suivi_projet.organisation.controllers;
 import com.example.suivi_projet.organisation.dto.EmployeCreateDTO;
 import com.example.suivi_projet.organisation.dto.EmployeResponseDTO;
 import com.example.suivi_projet.organisation.services.EmployeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class EmployeController {
 
     // créer employé
     @PostMapping("/save")
-    public ResponseEntity<EmployeResponseDTO> save(@RequestBody EmployeCreateDTO dto) {
+    public ResponseEntity<EmployeResponseDTO> save(@Valid @RequestBody EmployeCreateDTO dto) {
 
         EmployeResponseDTO employe = employeService.save(dto);
 
@@ -30,8 +31,9 @@ public class EmployeController {
 
     // modifier employé
     @PutMapping("/update/{id}")
-    public ResponseEntity<EmployeResponseDTO> update(@PathVariable int id,
-                                                     @RequestBody EmployeCreateDTO dto) {
+    public ResponseEntity<EmployeResponseDTO> update(
+            @PathVariable int id,
+            @Valid @RequestBody EmployeCreateDTO dto) {
 
         EmployeResponseDTO employe = employeService.update(id, dto);
 
