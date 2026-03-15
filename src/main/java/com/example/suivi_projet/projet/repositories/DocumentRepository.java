@@ -9,5 +9,5 @@ import java.util.List;
 public interface DocumentRepository extends JpaRepository<Document, Integer> {
 
     List<Document> findByProjetId(int projetId);
-    Document findByLibelle(String libelle);
+    List<Document> findByLibelle(String libelle);
 }
