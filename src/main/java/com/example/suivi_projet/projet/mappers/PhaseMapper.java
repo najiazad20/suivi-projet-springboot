@@ -1,49 +1,57 @@
 package com.example.suivi_projet.projet.mappers;
 
-import com.example.suivi_projet.projet.dto.PhaseDTO;
+import com.example.suivi_projet.projet.dto.PhaseRequestDTO;
+import com.example.suivi_projet.projet.dto.PhaseResponseDTO;
 import com.example.suivi_projet.projet.entities.Phase;
+import com.example.suivi_projet.projet.entities.Projet;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PhaseMapper {
 
-    public static PhaseDTO toDTO(Phase phase) {
-
-        PhaseDTO dto = new PhaseDTO();
-
-        dto.setId(phase.getId());
-        dto.setCode(phase.getCode());
-        dto.setLibelle(phase.getLibelle());
-        dto.setDescription(phase.getDescription());
-        dto.setDateDebut(phase.getDateDebut());
-        dto.setDateFin(phase.getDateFin());
-        dto.setMontant(phase.getMontant());
-
-        dto.setEtatRealisation(phase.isEtatRealisation());
-        dto.setEtatFacturation(phase.isEtatFacturation());
-        dto.setEtatPaiement(phase.isEtatPaiement());
-
-        if (phase.getProjet() != null) {
-            dto.setProjetId(phase.getProjet().getId());
-        }
-
-        return dto;
-    }
-
-    public static Phase toEntity(PhaseDTO dto) {
+    public Phase toEntity(PhaseRequestDTO dto, Projet projet) {
 
         Phase phase = new Phase();
 
-        phase.setId(dto.getId());
-        phase.setCode(dto.getCode());
-        phase.setLibelle(dto.getLibelle());
-        phase.setDescription(dto.getDescription());
-        phase.setDateDebut(dto.getDateDebut());
-        phase.setDateFin(dto.getDateFin());
-        phase.setMontant(dto.getMontant());
+        phase.setCode(dto.code());
+        phase.setLibelle(dto.libelle());
+        phase.setDescription(dto.description());
+        phase.setDateDebut(dto.dateDebut());
+        phase.setDateFin(dto.dateFin());
+        phase.setMontant(dto.montant());
 
-        phase.setEtatRealisation(dto.isEtatRealisation());
-        phase.setEtatFacturation(dto.isEtatFacturation());
-        phase.setEtatPaiement(dto.isEtatPaiement());
+        phase.setEtatRealisation(false);
+        phase.setEtatFacturation(false);
+        phase.setEtatPaiement(false);
+
+        phase.setProjet(projet);
 
         return phase;
+    }
+
+    public PhaseResponseDTO toResponseDTO(Phase phase) {
+        return new PhaseResponseDTO(
+                phase.getId(),
+                phase.getCode(),
+                phase.getLibelle(),
+                phase.getDescription(),
+                phase.getDateDebut(),
+                phase.getDateFin(),
+                phase.getMontant(),
+                phase.isEtatRealisation(),
+                phase.isEtatFacturation(),
+                phase.isEtatPaiement(),
+                phase.getProjet().getId()
+        );
+    }
+
+    public void updateEntityFromDTO(PhaseRequestDTO dto, Phase phase) {
+
+        phase.setCode(dto.code());
+        phase.setLibelle(dto.libelle());
+        phase.setDescription(dto.description());
+        phase.setDateDebut(dto.dateDebut());
+        phase.setDateFin(dto.dateFin());
+        phase.setMontant(dto.montant());
     }
 }

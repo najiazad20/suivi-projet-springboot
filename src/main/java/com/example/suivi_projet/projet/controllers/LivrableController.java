@@ -1,11 +1,11 @@
 package com.example.suivi_projet.projet.controllers;
 
-import com.example.suivi_projet.projet.dto.LivrableDTO;
-import com.example.suivi_projet.projet.entities.Livrable;
+import com.example.suivi_projet.projet.dto.LivrableRequestDTO;
+import com.example.suivi_projet.projet.dto.LivrableResponseDTO;
 import com.example.suivi_projet.projet.services.LivrableService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,58 +13,47 @@ import java.util.List;
 @RequestMapping("/api")
 public class LivrableController {
 
-    @Autowired
-    private LivrableService livrableService;
+    private final LivrableService livrableService;
+
+    public LivrableController(LivrableService livrableService) {
+        this.livrableService = livrableService;
+    }
 
     // POST /api/phases/{phaseId}/livrables
     @PostMapping("/phases/{phaseId}/livrables")
-    public Livrable createLivrable(@PathVariable int phaseId, @RequestBody LivrableDTO dto){
-        Livrable livrable = new Livrable();
-        livrable.setCode(dto.getCode());
-        livrable.setLibelle(dto.getLibelle());
-        livrable.setDescription(dto.getDescription());
-        livrable.setChemin(dto.getChemin());
-        return livrableService.save(phaseId, livrable);
+    @ResponseStatus(HttpStatus.CREATED)
+    public LivrableResponseDTO createLivrable(
+            @PathVariable int phaseId,
+            @Valid @RequestBody LivrableRequestDTO dto) {
+
+        return livrableService.createLivrable(phaseId, dto);
     }
 
     // GET /api/phases/{phaseId}/livrables
     @GetMapping("/phases/{phaseId}/livrables")
-    public List<Livrable> getLivrablesByPhase(@PathVariable int phaseId){
-        return livrableService.findByPhase(phaseId);
+    public List<LivrableResponseDTO> getByPhase(@PathVariable int phaseId) {
+        return livrableService.getLivrablesByPhase(phaseId);
     }
 
     // GET /api/livrables/{id}
     @GetMapping("/livrables/{id}")
-    public Livrable getLivrable(@PathVariable int id){
-        return livrableService.findById(id);
+    public LivrableResponseDTO getById(@PathVariable int id) {
+        return livrableService.getLivrableById(id);
     }
 
     // PUT /api/livrables/{id}
     @PutMapping("/livrables/{id}")
-    public Livrable updateLivrable(@PathVariable int id, @RequestBody LivrableDTO dto){
-        Livrable livrable = new Livrable();
-        livrable.setCode(dto.getCode());
-        livrable.setLibelle(dto.getLibelle());
-        livrable.setDescription(dto.getDescription());
-        livrable.setChemin(dto.getChemin());
-        return livrableService.update(id, livrable);
+    public LivrableResponseDTO update(
+            @PathVariable int id,
+            @Valid @RequestBody LivrableRequestDTO dto) {
+
+        return livrableService.updateLivrable(id, dto);
     }
 
     // DELETE /api/livrables/{id}
     @DeleteMapping("/livrables/{id}")
-    public boolean deleteLivrable(@PathVariable int id){
-        return livrableService.delete(id);
-    }
-
-    // Optionnel: upload d’un fichier pour le livrable
-    @PostMapping("/phases/{phaseId}/livrables/upload")
-    public Livrable uploadFile(@PathVariable int phaseId, @RequestParam("file") MultipartFile file) {
-        // ici tu peux ajouter la logique pour enregistrer le fichier sur disque ou serveur
-        Livrable livrable = new Livrable();
-        livrable.setCode(file.getOriginalFilename());
-        livrable.setLibelle(file.getOriginalFilename());
-        livrable.setChemin("/uploads/" + file.getOriginalFilename());
-        livrable.setDescription("Fichier uploadé");
-        return livrableService.save(phaseId, livrable);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable int id) {
+        livrableService.deleteLivrable(id);
     }
 }

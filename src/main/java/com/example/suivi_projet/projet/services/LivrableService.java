@@ -1,11 +1,13 @@
 package com.example.suivi_projet.projet.services;
 
+import com.example.suivi_projet.projet.dto.LivrableRequestDTO;
+import com.example.suivi_projet.projet.dto.LivrableResponseDTO;
 import com.example.suivi_projet.projet.entities.Livrable;
 import com.example.suivi_projet.projet.entities.Phase;
+import com.example.suivi_projet.projet.mappers.LivrableMapper;
 import com.example.suivi_projet.projet.repositories.LivrableRepository;
 import com.example.suivi_projet.projet.repositories.PhaseRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.suivi_projet.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,55 +15,71 @@ import java.util.List;
 @Service
 public class LivrableService {
 
-    @Autowired
-    private LivrableRepository livrableRepository;
+    private final LivrableRepository livrableRepository;
+    private final PhaseRepository phaseRepository;
+    private final LivrableMapper livrableMapper;
 
-    @Autowired
-    private PhaseRepository phaseRepository;
-
-    public Livrable save(int phaseId, Livrable livrable){
-
-        Phase phase = phaseRepository.findById(phaseId).orElse(null);
-
-        livrable.setPhase(phase);
-
-        return livrableRepository.save(livrable);
+    public LivrableService(LivrableRepository livrableRepository,
+                           PhaseRepository phaseRepository,
+                           LivrableMapper livrableMapper) {
+        this.livrableRepository = livrableRepository;
+        this.phaseRepository = phaseRepository;
+        this.livrableMapper = livrableMapper;
     }
 
-    public List<Livrable> findByPhase(int phaseId){
-        return livrableRepository.findByPhaseId(phaseId);
+    // CREATE
+    public LivrableResponseDTO createLivrable(int phaseId, LivrableRequestDTO dto) {
+
+        Phase phase = phaseRepository.findById(phaseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Phase introuvable"));
+
+        Livrable livrable = livrableMapper.toEntity(dto, phase);
+
+        Livrable saved = livrableRepository.save(livrable);
+
+        return livrableMapper.toResponseDTO(saved);
     }
 
-    public Livrable findById(int id){
-        return livrableRepository.findById(id).orElse(null);
+    // GET BY PHASE
+    public List<LivrableResponseDTO> getLivrablesByPhase(int phaseId) {
+
+        return livrableRepository.findByPhaseId(phaseId)
+                .stream()
+                .map(livrableMapper::toResponseDTO)
+                .toList();
     }
 
-    public Livrable update(int id, Livrable livrable){
+    // GET BY ID
+    public LivrableResponseDTO getLivrableById(int id) {
 
-        Livrable l = livrableRepository.findById(id).orElse(null);
+        Livrable livrable = livrableRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Livrable introuvable"));
 
-        if(l != null){
-
-            l.setCode(livrable.getCode());
-            l.setLibelle(livrable.getLibelle());
-            l.setDescription(livrable.getDescription());
-            l.setChemin(livrable.getChemin());
-
-            return livrableRepository.save(l);
-        }
-
-        return null;
+        return livrableMapper.toResponseDTO(livrable);
     }
 
-    public boolean delete(int id){
+    // UPDATE
+    public LivrableResponseDTO updateLivrable(int id, LivrableRequestDTO dto) {
 
-        Livrable livrable = livrableRepository.findById(id).orElse(null);
+        Livrable livrable = livrableRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Livrable introuvable"));
 
-        if(livrable != null){
-            livrableRepository.delete(livrable);
-            return true;
-        }
+        Phase phase = phaseRepository.findById(dto.phaseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Phase introuvable"));
 
-        return false;
+        livrableMapper.updateEntityFromDTO(dto, livrable, phase);
+
+        Livrable updated = livrableRepository.save(livrable);
+
+        return livrableMapper.toResponseDTO(updated);
+    }
+
+    // DELETE
+    public void deleteLivrable(int id) {
+
+        Livrable livrable = livrableRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Livrable introuvable"));
+
+        livrableRepository.delete(livrable);
     }
 }

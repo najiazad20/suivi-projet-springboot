@@ -2,17 +2,19 @@ package com.example.suivi_projet.projet.dto;
 
 import java.util.Date;
 
-public record ProjetResponseDTO(
+public record PhaseResponseDTO(
 
         int id,
         String code,
-        String nom,
+        String libelle,
         String description,
         Date dateDebut,
         Date dateFin,
         double montant,
-        String organismeNom,
-        String chefProjetNom
+        boolean etatRealisation,
+        boolean etatFacturation,
+        boolean etatPaiement,
+        int projetId
 
 ) {
 }

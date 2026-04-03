@@ -1,129 +1,141 @@
 package com.example.suivi_projet.projet.services;
 
+import com.example.suivi_projet.projet.dto.PhaseRequestDTO;
+import com.example.suivi_projet.projet.dto.PhaseResponseDTO;
 import com.example.suivi_projet.projet.entities.Phase;
 import com.example.suivi_projet.projet.entities.Projet;
+import com.example.suivi_projet.projet.mappers.PhaseMapper;
 import com.example.suivi_projet.projet.repositories.PhaseRepository;
 import com.example.suivi_projet.projet.repositories.ProjetRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PhaseService {
 
-    @Autowired
-    private PhaseRepository phaseRepository;
+    private final PhaseRepository phaseRepository;
+    private final ProjetRepository projetRepository;
+    private final PhaseMapper phaseMapper;
 
-    @Autowired
-    private ProjetRepository projetRepository;
+    public PhaseService(PhaseRepository phaseRepository,
+                        ProjetRepository projetRepository,
+                        PhaseMapper phaseMapper) {
+        this.phaseRepository = phaseRepository;
+        this.projetRepository = projetRepository;
+        this.phaseMapper = phaseMapper;
+    }
 
-    // créer une phase dans un projet
-    public Phase createPhase(int projetId, Phase phase) {
+    // CREATE
+    public PhaseResponseDTO addPhase(int projetId, PhaseRequestDTO dto) {
 
-        Optional<Projet> projetOptional = projetRepository.findById(projetId);
-        if (!projetOptional.isPresent()) return null;
+        Projet projet = projetRepository.findById(projetId)
+                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
 
-        Projet projet = projetOptional.get();
-
-        // contrôle dates
-        if (phase.getDateDebut().before(projet.getDateDebut()) ||
-                phase.getDateFin().after(projet.getDateFin())) {
-            return null;
+        if (dto.dateDebut().before(projet.getDateDebut()) ||
+                dto.dateFin().after(projet.getDateFin())) {
+            throw new RuntimeException("Dates invalides");
         }
 
-        // contrôle montant
         double somme = phaseRepository.findByProjetId(projetId)
                 .stream()
                 .mapToDouble(Phase::getMontant)
                 .sum();
 
-        if (somme + phase.getMontant() > projet.getMontant()) {
-            return null;
+        if (somme + dto.montant() > projet.getMontant()) {
+            throw new RuntimeException("Montant dépassé");
         }
 
-        phase.setProjet(projet);
-        return phaseRepository.save(phase);
+        Phase phase = phaseMapper.toEntity(dto, projet);
+
+        return phaseMapper.toResponseDTO(phaseRepository.save(phase));
     }
 
-    // phases d'un projet
-    public List<Phase> findByProjet(int projetId) {
-        return phaseRepository.findByProjetId(projetId);
+    // GET phases d'un projet
+    public List<PhaseResponseDTO> getPhasesByProjet(int projetId) {
+        return phaseRepository.findByProjetId(projetId)
+                .stream()
+                .map(phaseMapper::toResponseDTO)
+                .toList();
     }
 
-    // phase par id
-    public Optional<Phase> findById(int id) {
-        return phaseRepository.findById(id);
+    // GET by id
+    public PhaseResponseDTO getPhaseById(int id) {
+        Phase phase = phaseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
+
+        return phaseMapper.toResponseDTO(phase);
     }
 
-    // modifier phase
-    public Phase update(int id, Phase phaseDetails) {
+    // UPDATE
+    public PhaseResponseDTO updatePhase(int id, PhaseRequestDTO dto) {
 
-        Optional<Phase> phaseOptional = phaseRepository.findById(id);
-        if (!phaseOptional.isPresent()) return null;
+        Phase phase = phaseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
 
-        Phase phase = phaseOptional.get();
         Projet projet = phase.getProjet();
 
-        // contrôle dates
-        if (phaseDetails.getDateDebut().before(projet.getDateDebut()) ||
-                phaseDetails.getDateFin().after(projet.getDateFin())) {
-            return null;
+        if (dto.dateDebut().before(projet.getDateDebut()) ||
+                dto.dateFin().after(projet.getDateFin())) {
+            throw new RuntimeException("Dates invalides");
         }
 
-        phase.setCode(phaseDetails.getCode());
-        phase.setLibelle(phaseDetails.getLibelle());
-        phase.setDescription(phaseDetails.getDescription());
-        phase.setDateDebut(phaseDetails.getDateDebut());
-        phase.setDateFin(phaseDetails.getDateFin());
-        phase.setMontant(phaseDetails.getMontant());
+        phaseMapper.updateEntityFromDTO(dto, phase);
 
-        return phaseRepository.save(phase);
+        return phaseMapper.toResponseDTO(phaseRepository.save(phase));
     }
 
-    // supprimer phase
-    public boolean delete(int id) {
-        Optional<Phase> phaseOptional = phaseRepository.findById(id);
+    // DELETE
+    public void deletePhase(int id) {
+        Phase phase = phaseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
 
-        if (phaseOptional.isPresent()) {
-            phaseRepository.delete(phaseOptional.get());
-            return true;
-        }
-
-        return false;
+        phaseRepository.delete(phase);
     }
 
-    // changer état réalisation
-    public Phase realisation(int id) {
-        Optional<Phase> phaseOptional = phaseRepository.findById(id);
-        if (!phaseOptional.isPresent()) return null;
+    // REALISATION
+    public PhaseResponseDTO setRealisation(int id) {
+        Phase phase = phaseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
 
-        Phase phase = phaseOptional.get();
         phase.setEtatRealisation(true);
 
-        return phaseRepository.save(phase);
+        return phaseMapper.toResponseDTO(phaseRepository.save(phase));
     }
 
-    // changer état facturation
-    public Phase facturation(int id) {
-        Optional<Phase> phaseOptional = phaseRepository.findById(id);
-        if (!phaseOptional.isPresent()) return null;
+    // FACTURATION
+    public PhaseResponseDTO setFacturation(int id) {
+        Phase phase = phaseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
 
-        Phase phase = phaseOptional.get();
         phase.setEtatFacturation(true);
 
-        return phaseRepository.save(phase);
+        return phaseMapper.toResponseDTO(phaseRepository.save(phase));
     }
 
-    // changer état paiement
-    public Phase paiement(int id) {
-        Optional<Phase> phaseOptional = phaseRepository.findById(id);
-        if (!phaseOptional.isPresent()) return null;
+    // PAIEMENT
+    public PhaseResponseDTO setPaiement(int id) {
+        Phase phase = phaseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
 
-        Phase phase = phaseOptional.get();
         phase.setEtatPaiement(true);
 
-        return phaseRepository.save(phase);
+        return phaseMapper.toResponseDTO(phaseRepository.save(phase));
+    }
+
+    // REPORTING 1
+    public List<PhaseResponseDTO> getTermineesNonFacturees() {
+        return phaseRepository.findByEtatRealisationTrueAndEtatFacturationFalse()
+                .stream()
+                .map(phaseMapper::toResponseDTO)
+                .toList();
+    }
+
+    // REPORTING 2
+    public List<PhaseResponseDTO> getFactureesNonPayees() {
+        return phaseRepository.findByEtatFacturationTrueAndEtatPaiementFalse()
+                .stream()
+                .map(phaseMapper::toResponseDTO)
+                .toList();
     }
 }

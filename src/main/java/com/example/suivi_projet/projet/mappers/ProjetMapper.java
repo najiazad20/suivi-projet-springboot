@@ -1,47 +1,53 @@
 package com.example.suivi_projet.projet.mappers;
 
-import com.example.suivi_projet.projet.dto.ProjetCreateDTO;
+import com.example.suivi_projet.projet.dto.ProjetRequestDTO;
 import com.example.suivi_projet.projet.dto.ProjetResponseDTO;
 import com.example.suivi_projet.projet.entities.Projet;
 import com.example.suivi_projet.organisation.entities.Employe;
 import com.example.suivi_projet.organisation.entities.Organisme;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ProjetMapper {
 
-    public static ProjetResponseDTO toDTO(Projet projet) {
-        ProjetResponseDTO dto = new ProjetResponseDTO();
-        dto.setId(projet.getId());
-        dto.setCode(projet.getCode());
-        dto.setNom(projet.getNom());
-        dto.setDescription(projet.getDescription());
-        dto.setDateDebut(projet.getDateDebut());
-        dto.setDateFin(projet.getDateFin());
-        dto.setMontant(projet.getMontant());
-        dto.setOrganismeNom(projet.getOrganisme() != null ? projet.getOrganisme().getNom() : "");
-        dto.setChefProjetNom(projet.getChefProjet() != null ? projet.getChefProjet().getNom() : "");
-        return dto;
-    }
-
-    public static Projet toEntity(ProjetCreateDTO dto, Organisme organisme, Employe chefProjet) {
+    public Projet toEntity(ProjetRequestDTO dto, Organisme organisme, Employe chefProjet) {
         Projet projet = new Projet();
-        projet.setCode(dto.getCode());
-        projet.setNom(dto.getNom());
-        projet.setDescription(dto.getDescription());
-        projet.setDateDebut(dto.getDateDebut());
-        projet.setDateFin(dto.getDateFin());
-        projet.setMontant(dto.getMontant());
+
+        projet.setCode(dto.code());
+        projet.setNom(dto.nom());
+        projet.setDescription(dto.description());
+        projet.setDateDebut(dto.dateDebut());
+        projet.setDateFin(dto.dateFin());
+        projet.setMontant(dto.montant());
         projet.setOrganisme(organisme);
         projet.setChefProjet(chefProjet);
+
         return projet;
     }
 
-    public static void updateEntity(Projet projet, ProjetCreateDTO dto, Organisme organisme, Employe chefProjet) {
-        projet.setCode(dto.getCode());
-        projet.setNom(dto.getNom());
-        projet.setDescription(dto.getDescription());
-        projet.setDateDebut(dto.getDateDebut());
-        projet.setDateFin(dto.getDateFin());
-        projet.setMontant(dto.getMontant());
+    public ProjetResponseDTO toResponseDTO(Projet projet) {
+        return new ProjetResponseDTO(
+                projet.getId(),
+                projet.getCode(),
+                projet.getNom(),
+                projet.getDescription(),
+                projet.getDateDebut(),
+                projet.getDateFin(),
+                projet.getMontant(),
+                projet.getOrganisme().getNom(),
+                projet.getChefProjet().getNom()
+        );
+    }
+
+    public void updateEntityFromDTO(ProjetRequestDTO dto, Projet projet,
+                                    Organisme organisme, Employe chefProjet) {
+
+        projet.setCode(dto.code());
+        projet.setNom(dto.nom());
+        projet.setDescription(dto.description());
+        projet.setDateDebut(dto.dateDebut());
+        projet.setDateFin(dto.dateFin());
+        projet.setMontant(dto.montant());
         projet.setOrganisme(organisme);
         projet.setChefProjet(chefProjet);
     }

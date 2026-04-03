@@ -1,72 +1,124 @@
 package com.example.suivi_projet.projet.services;
 
+import com.example.suivi_projet.projet.dto.ProjetRequestDTO;
+import com.example.suivi_projet.projet.dto.ProjetResponseDTO;
 import com.example.suivi_projet.projet.entities.Projet;
+import com.example.suivi_projet.projet.mappers.ProjetMapper;
 import com.example.suivi_projet.projet.repositories.ProjetRepository;
 import com.example.suivi_projet.organisation.entities.Employe;
 import com.example.suivi_projet.organisation.entities.Organisme;
 import com.example.suivi_projet.organisation.repositories.EmployeRepository;
 import com.example.suivi_projet.organisation.repositories.OrganismeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProjetService {
 
-    @Autowired
-    private ProjetRepository projetRepository;
+    private final ProjetRepository projetRepository;
+    private final OrganismeRepository organismeRepository;
+    private final EmployeRepository employeRepository;
+    private final ProjetMapper projetMapper;
 
-    @Autowired
-    private OrganismeRepository organismeRepository;
+    public ProjetService(ProjetRepository projetRepository,
+                         OrganismeRepository organismeRepository,
+                         EmployeRepository employeRepository,
+                         ProjetMapper projetMapper) {
 
-    @Autowired
-    private EmployeRepository employeRepository;
-
-    // Sauvegarder ou créer un projet
-    public Projet save(Projet projet) {
-        return projetRepository.save(projet);
+        this.projetRepository = projetRepository;
+        this.organismeRepository = organismeRepository;
+        this.employeRepository = employeRepository;
+        this.projetMapper = projetMapper;
     }
 
-    // Supprimer un projet par ID
-    public boolean delete(int id) {
-        Optional<Projet> projetOptional = projetRepository.findById(id);
-        if (projetOptional.isPresent()) {
-            projetRepository.delete(projetOptional.get());
-            return true;
-        } else {
-            return false;
+    // CREATE
+    public ProjetResponseDTO addProjet(ProjetRequestDTO dto) {
+
+        if (dto.dateDebut().after(dto.dateFin())) {
+            throw new RuntimeException("Date invalide");
         }
+
+        // ⚠️ adaptation repo (pas Optional)
+        if (projetRepository.findByCode(dto.code()) != null) {
+            throw new RuntimeException("Code déjà existant");
+        }
+
+        Organisme organisme = organismeRepository.findById(dto.organismeId())
+                .orElseThrow(() -> new RuntimeException("Organisme introuvable"));
+
+        Employe chef = employeRepository.findById(dto.chefProjetId())
+                .orElseThrow(() -> new RuntimeException("Chef introuvable"));
+
+        Projet projet = projetMapper.toEntity(dto, organisme, chef);
+
+        return projetMapper.toResponseDTO(projetRepository.save(projet));
     }
 
-    // Récupérer tous les projets
-    public List<Projet> findAll() {
-        return projetRepository.findAll();
+    // GET ALL
+    public List<ProjetResponseDTO> getAllProjets() {
+        return projetRepository.findAll()
+                .stream()
+                .map(projetMapper::toResponseDTO)
+                .toList();
     }
 
-    // Compter le nombre de projets
-    public long countProjets() {
-        return projetRepository.count();
+    // GET BY ID
+    public ProjetResponseDTO getProjetById(int id) {
+
+        Projet projet = projetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
+
+        return projetMapper.toResponseDTO(projet);
     }
 
-    // Trouver un projet par son code
-    public Optional<Projet> findByCode(String code) {
-        return Optional.ofNullable(projetRepository.findByCode(code));
+    // UPDATE
+    public ProjetResponseDTO updateProjet(int id, ProjetRequestDTO dto) {
+
+        Projet projet = projetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
+
+        if (dto.dateDebut().after(dto.dateFin())) {
+            throw new RuntimeException("Date invalide");
+        }
+
+        Organisme organisme = organismeRepository.findById(dto.organismeId())
+                .orElseThrow(() -> new RuntimeException("Organisme introuvable"));
+
+        Employe chef = employeRepository.findById(dto.chefProjetId())
+                .orElseThrow(() -> new RuntimeException("Chef introuvable"));
+
+        projetMapper.updateEntityFromDTO(dto, projet, organisme, chef);
+
+        return projetMapper.toResponseDTO(projetRepository.save(projet));
     }
 
-    // Exemple de méthode pour trouver par montant
-    public List<Projet> findByMontant(double montant) {
-        return projetRepository.findByMontant(montant);
+    // DELETE
+    public void deleteProjet(int id) {
+
+        Projet projet = projetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
+
+        projetRepository.delete(projet);
     }
 
-    // Vérification existence organisme
-    public boolean isValidOrganisme(int organismeId) {
-        return organismeRepository.findById(organismeId).isPresent();
+    // FIND BY CODE (adapté repo)
+    public ProjetResponseDTO getByCode(String code) {
+
+        Projet projet = projetRepository.findByCode(code);
+
+        if (projet == null) {
+            throw new RuntimeException("Projet introuvable avec code : " + code);
+        }
+
+        return projetMapper.toResponseDTO(projet);
     }
 
-    // Vérification existence chef de projet
-    public boolean isValidChefProjet(int chefId) {
-        return employeRepository.findById(chefId).isPresent();
+    // FIND BY MONTANT
+    public List<ProjetResponseDTO> getByMontant(double montant) {
+        return projetRepository.findByMontant(montant)
+                .stream()
+                .map(projetMapper::toResponseDTO)
+                .toList();
     }
 }

@@ -1,97 +1,84 @@
 package com.example.suivi_projet.projet.controllers;
 
-import com.example.suivi_projet.projet.entities.Phase;
+import jakarta.validation.Valid;
+import com.example.suivi_projet.projet.dto.PhaseRequestDTO;
+import com.example.suivi_projet.projet.dto.PhaseResponseDTO;
 import com.example.suivi_projet.projet.services.PhaseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 public class PhaseController {
 
-    @Autowired
-    private PhaseService phaseService;
+    private final PhaseService phaseService;
 
-    // créer phase
+    public PhaseController(PhaseService phaseService) {
+        this.phaseService = phaseService;
+    }
+
+    // CREATE
     @PostMapping("/projets/{projetId}/phases")
-    public ResponseEntity<Phase> createPhase(@PathVariable int projetId,
-                                             @RequestBody Phase phase) {
-
-        Phase p = phaseService.createPhase(projetId, phase);
-
-        if (p == null)
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        return new ResponseEntity<>(p, HttpStatus.CREATED);
+    @ResponseStatus(HttpStatus.CREATED)
+    public PhaseResponseDTO addPhase(@PathVariable int projetId,
+                                     @Valid @RequestBody PhaseRequestDTO dto) {
+        return phaseService.addPhase(projetId, dto);
     }
 
-    // phases d'un projet
+    // GET phases projet
     @GetMapping("/projets/{projetId}/phases")
-    public ResponseEntity<List<Phase>> findByProjet(@PathVariable int projetId) {
-
-        List<Phase> phases = phaseService.findByProjet(projetId);
-        return new ResponseEntity<>(phases, HttpStatus.OK);
+    public List<PhaseResponseDTO> getPhases(@PathVariable int projetId) {
+        return phaseService.getPhasesByProjet(projetId);
     }
 
-    // phase par id
+    // GET by id
     @GetMapping("/phases/{id}")
-    public ResponseEntity<Optional<Phase>> findById(@PathVariable int id) {
-
-        Optional<Phase> phase = phaseService.findById(id);
-        return new ResponseEntity<>(phase, HttpStatus.OK);
+    public PhaseResponseDTO getPhase(@PathVariable int id) {
+        return phaseService.getPhaseById(id);
     }
 
-    // modifier phase
+    // UPDATE
     @PutMapping("/phases/{id}")
-    public ResponseEntity<Phase> update(@PathVariable int id,
-                                        @RequestBody Phase phase) {
-
-        Phase updated = phaseService.update(id, phase);
-
-        if (updated == null)
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-
-        return new ResponseEntity<>(updated, HttpStatus.OK);
+    public PhaseResponseDTO updatePhase(@PathVariable int id,
+                                        @Valid @RequestBody PhaseRequestDTO dto) {
+        return phaseService.updatePhase(id, dto);
     }
 
-    // supprimer phase
+    // DELETE
     @DeleteMapping("/phases/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
-
-        boolean deleted = phaseService.delete(id);
-
-        if (deleted)
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePhase(@PathVariable int id) {
+        phaseService.deletePhase(id);
     }
 
-    // état réalisation
+    // REALISATION
     @PatchMapping("/phases/{id}/realisation")
-    public ResponseEntity<Phase> realisation(@PathVariable int id) {
-
-        Phase phase = phaseService.realisation(id);
-        return new ResponseEntity<>(phase, HttpStatus.OK);
+    public PhaseResponseDTO realisation(@PathVariable int id) {
+        return phaseService.setRealisation(id);
     }
 
-    // état facturation
+    // FACTURATION
     @PatchMapping("/phases/{id}/facturation")
-    public ResponseEntity<Phase> facturation(@PathVariable int id) {
-
-        Phase phase = phaseService.facturation(id);
-        return new ResponseEntity<>(phase, HttpStatus.OK);
+    public PhaseResponseDTO facturation(@PathVariable int id) {
+        return phaseService.setFacturation(id);
     }
 
-    // état paiement
+    // PAIEMENT
     @PatchMapping("/phases/{id}/paiement")
-    public ResponseEntity<Phase> paiement(@PathVariable int id) {
+    public PhaseResponseDTO paiement(@PathVariable int id) {
+        return phaseService.setPaiement(id);
+    }
 
-        Phase phase = phaseService.paiement(id);
-        return new ResponseEntity<>(phase, HttpStatus.OK);
+    // REPORTING
+    @GetMapping("/phases/terminees-non-facturees")
+    public List<PhaseResponseDTO> termineesNonFacturees() {
+        return phaseService.getTermineesNonFacturees();
+    }
+
+    @GetMapping("/phases/facturees-non-payees")
+    public List<PhaseResponseDTO> factureesNonPayees() {
+        return phaseService.getFactureesNonPayees();
     }
 }

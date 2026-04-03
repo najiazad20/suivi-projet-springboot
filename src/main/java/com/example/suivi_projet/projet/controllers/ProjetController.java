@@ -1,65 +1,66 @@
 package com.example.suivi_projet.projet.controllers;
 
-import com.example.suivi_projet.projet.entities.Projet;
+import jakarta.validation.Valid;
+import com.example.suivi_projet.projet.dto.ProjetRequestDTO;
+import com.example.suivi_projet.projet.dto.ProjetResponseDTO;
 import com.example.suivi_projet.projet.services.ProjetService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/projets")
+@RequestMapping("/api/projets")
 public class ProjetController {
 
-    @Autowired
-    private ProjetService projetService;
+    private final ProjetService projetService;
 
-    // Créer ou sauvegarder un projet
-    @PostMapping("/save")
-    public ResponseEntity<Projet> save(@RequestBody Projet projet) {
-        Projet savedProjet = projetService.save(projet);
-        return new ResponseEntity<>(savedProjet, HttpStatus.CREATED);
+    public ProjetController(ProjetService projetService) {
+        this.projetService = projetService;
     }
 
-    // Supprimer un projet par ID
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
-        boolean deleted = projetService.delete(id);
-        if (deleted) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    // CREATE
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProjetResponseDTO addProjet(@Valid @RequestBody ProjetRequestDTO dto) {
+        return projetService.addProjet(dto);
     }
 
-    // Récupérer tous les projets
-    @GetMapping("/all")
-    public ResponseEntity<List<Projet>> findAll() {
-        List<Projet> projets = projetService.findAll();
-        return new ResponseEntity<>(projets, HttpStatus.OK);
+    // GET ALL
+    @GetMapping
+    public List<ProjetResponseDTO> getAllProjets() {
+        return projetService.getAllProjets();
     }
 
-    // Compter le nombre de projets
-    @GetMapping("/count")
-    public ResponseEntity<Long> countProjets() {
-        long count = projetService.countProjets();
-        return new ResponseEntity<>(count, HttpStatus.OK);
+    // GET BY ID
+    @GetMapping("/{id}")
+    public ProjetResponseDTO getProjetById(@PathVariable int id) {
+        return projetService.getProjetById(id);
     }
 
-    // Trouver un projet par code
-    @GetMapping("/byCode/{code}")
-    public ResponseEntity<Optional<Projet>> findByCode(@PathVariable String code) {
-        Optional<Projet> projet = projetService.findByCode(code);
-        return new ResponseEntity<>(projet, HttpStatus.OK);
+    // UPDATE
+    @PutMapping("/{id}")
+    public ProjetResponseDTO updateProjet(@PathVariable int id,
+                                          @Valid @RequestBody ProjetRequestDTO dto) {
+        return projetService.updateProjet(id, dto);
     }
 
-    // Trouver des projets par montant
-    @GetMapping("/byMontant/{montant}")
-    public ResponseEntity<List<Projet>> findByMontant(@PathVariable double montant) {
-        List<Projet> projets = projetService.findByMontant(montant);
-        return new ResponseEntity<>(projets, HttpStatus.OK);
+    // DELETE
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProjet(@PathVariable int id) {
+        projetService.deleteProjet(id);
+    }
+
+    // FIND BY CODE
+    @GetMapping("/code/{code}")
+    public ProjetResponseDTO getByCode(@PathVariable String code) {
+        return projetService.getByCode(code);
+    }
+
+    // FIND BY MONTANT
+    @GetMapping("/montant/{montant}")
+    public List<ProjetResponseDTO> getByMontant(@PathVariable double montant) {
+        return projetService.getByMontant(montant);
     }
 }
