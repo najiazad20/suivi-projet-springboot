@@ -1,6 +1,7 @@
 package com.example.suivi_projet.projet.controllers;
 
-import com.example.suivi_projet.projet.entities.Document;
+import com.example.suivi_projet.projet.dto.DocumentRequestDTO;
+import com.example.suivi_projet.projet.dto.DocumentResponseDTO;
 import com.example.suivi_projet.projet.services.DocumentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,72 +9,63 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 public class DocumentController {
 
     @Autowired
     private DocumentService documentService;
 
-    @PostMapping("/api/projets/{projetId}/documents")
-    public ResponseEntity<Document> save(@PathVariable int projetId,
-                                         @RequestBody Document document){
+    @PostMapping("/projets/{projetId}/documents")
+    public ResponseEntity<DocumentResponseDTO> save(
+            @PathVariable int projetId,
+            @Valid @RequestBody DocumentRequestDTO dto) {
 
-        Document doc = documentService.save(projetId,document);
+        DocumentRequestDTO dtoWithProjetId = new DocumentRequestDTO(
+                dto.code(), dto.libelle(), dto.description(), dto.chemin(), projetId
+        );
 
-        return new ResponseEntity<>(doc,HttpStatus.CREATED);
+        return new ResponseEntity<>(documentService.save(dtoWithProjetId), HttpStatus.CREATED);
     }
 
-    @GetMapping("/api/projets/{projetId}/documents")
-    public ResponseEntity<List<Document>> findByProjet(@PathVariable int projetId){
-
-        List<Document> docs = documentService.findByProjet(projetId);
-
-        return new ResponseEntity<>(docs,HttpStatus.OK);
+    @GetMapping("/projets/{projetId}/documents")
+    public ResponseEntity<List<DocumentResponseDTO>> findByProjet(@PathVariable int projetId) {
+        return new ResponseEntity<>(documentService.findByProjet(projetId), HttpStatus.OK);
     }
 
-    @GetMapping("/api/documents/{id}")
-    public ResponseEntity<Document> findById(@PathVariable int id){
-
-        Document doc = documentService.findById(id);
-
-        return new ResponseEntity<>(doc,HttpStatus.OK);
+    @GetMapping("/documents/{id}")
+    public ResponseEntity<DocumentResponseDTO> findById(@PathVariable int id) {
+        return ResponseEntity.of(java.util.Optional.ofNullable(documentService.findById(id)));
     }
 
-    @PutMapping("/api/documents/{id}")
-    public ResponseEntity<Document> update(@PathVariable int id,
-                                           @RequestBody Document document){
+    @PutMapping("/documents/{id}")
+    public ResponseEntity<DocumentResponseDTO> update(
+            @PathVariable int id,
+            @Valid @RequestBody DocumentRequestDTO dto) {
 
-        Document doc = documentService.update(id,document);
-
-        return new ResponseEntity<>(doc,HttpStatus.OK);
+        return ResponseEntity.of(java.util.Optional.ofNullable(documentService.update(id, dto)));
     }
 
-    @DeleteMapping("/api/documents/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id){
-
-        boolean deleted = documentService.delete(id);
-
-        if(deleted)
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @DeleteMapping("/documents/{id}")
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        return documentService.delete(id)
+                ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
+                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/api/documents/{id}/download")
-    public ResponseEntity<String> download(@PathVariable int id){
-
-        Document doc = documentService.findById(id);
-
-        return new ResponseEntity<>(doc.getChemin(),HttpStatus.OK);
+    @GetMapping("/documents/{id}/download")
+    public ResponseEntity<String> download(@PathVariable int id) {
+        return ResponseEntity.of(
+                java.util.Optional.ofNullable(documentService.findById(id))
+                        .map(DocumentResponseDTO::chemin)
+        );
     }
-    // nouvelle API recherche par libelle
-    @GetMapping("/api/documents/search")
-    public ResponseEntity<List<Document>> findByLibelle(@RequestParam String libelle){
 
-        List<Document> docs = documentService.findByLibelle(libelle);
-
-        return new ResponseEntity<>(docs,HttpStatus.OK);
+    @GetMapping("/documents/search")
+    public ResponseEntity<List<DocumentResponseDTO>> findByLibelle(@RequestParam String libelle) {
+        return new ResponseEntity<>(documentService.findByLibelle(libelle), HttpStatus.OK);
     }
 }

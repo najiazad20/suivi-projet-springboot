@@ -1,14 +1,17 @@
 package com.example.suivi_projet.projet.services;
 
+import com.example.suivi_projet.projet.dto.DocumentRequestDTO;
+import com.example.suivi_projet.projet.dto.DocumentResponseDTO;
 import com.example.suivi_projet.projet.entities.Document;
-import com.example.suivi_projet.projet.entities.Projet;
 import com.example.suivi_projet.projet.repositories.DocumentRepository;
 import com.example.suivi_projet.projet.repositories.ProjetRepository;
+import com.example.suivi_projet.projet.mappers.DocumentMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DocumentService {
@@ -19,52 +22,47 @@ public class DocumentService {
     @Autowired
     private ProjetRepository projetRepository;
 
-    public Document save(int projetId, Document document){
-
-        Projet projet = projetRepository.findById(projetId).orElse(null);
-
-        document.setProjet(projet);
-
-        return documentRepository.save(document);
+    public DocumentResponseDTO save(DocumentRequestDTO dto) {
+        Document document = DocumentMapper.toEntity(dto);
+        projetRepository.findById(dto.projetId()).ifPresent(document::setProjet);
+        Document saved = documentRepository.save(document);
+        return DocumentMapper.toDTO(saved);
     }
 
-    public List<Document> findByProjet(int projetId){
-
-        return documentRepository.findByProjetId(projetId);
+    public List<DocumentResponseDTO> findByProjet(int projetId) {
+        return documentRepository.findByProjetId(projetId)
+                .stream()
+                .map(DocumentMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public Document findById(int id){
-        return documentRepository.findById(id).orElse(null);
+    public DocumentResponseDTO findById(int id) {
+        return documentRepository.findById(id)
+                .map(DocumentMapper::toDTO)
+                .orElse(null);
     }
 
-    public Document update(int id, Document doc){
-
-        Document d = documentRepository.findById(id).orElse(null);
-
-        if(d != null){
-            d.setLibelle(doc.getLibelle());
-            d.setDescription(doc.getDescription());
-            d.setChemin(doc.getChemin());
-
-            return documentRepository.save(d);
-        }
-
-        return null;
+    public DocumentResponseDTO update(int id, DocumentRequestDTO dto) {
+        return documentRepository.findById(id)
+                .map(document -> {
+                    DocumentMapper.updateEntity(document, dto);
+                    projetRepository.findById(dto.projetId()).ifPresent(document::setProjet);
+                    return DocumentMapper.toDTO(documentRepository.save(document));
+                }).orElse(null);
     }
 
-    public boolean delete(int id){
-
-        Document doc = documentRepository.findById(id).orElse(null);
-
-        if(doc != null){
-            documentRepository.delete(doc);
-            return true;
-        }
-
-        return false;
-    }
-    public List<Document> findByLibelle(String libelle){
-        return documentRepository.findByLibelle(libelle);
+    public boolean delete(int id) {
+        return documentRepository.findById(id)
+                .map(document -> {
+                    documentRepository.delete(document);
+                    return true;
+                }).orElse(false);
     }
 
+    public List<DocumentResponseDTO> findByLibelle(String libelle) {
+        return documentRepository.findByLibelle(libelle)
+                .stream()
+                .map(DocumentMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }

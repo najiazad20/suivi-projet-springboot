@@ -1,37 +1,36 @@
 package com.example.suivi_projet.projet.mappers;
 
-import com.example.suivi_projet.projet.dto.DocumentDTO;
+import com.example.suivi_projet.projet.dto.DocumentRequestDTO;
+import com.example.suivi_projet.projet.dto.DocumentResponseDTO;
 import com.example.suivi_projet.projet.entities.Document;
 
 public class DocumentMapper {
 
-    public static DocumentDTO toDTO(Document document) {
-
-        DocumentDTO dto = new DocumentDTO();
-
-        dto.setId(document.getId());
-        dto.setCode(document.getCode());
-        dto.setLibelle(document.getLibelle());
-        dto.setDescription(document.getDescription());
-        dto.setChemin(document.getChemin());
-
-        if (document.getProjet() != null) {
-            dto.setProjetId(document.getProjet().getId());
-        }
-
-        return dto;
+    public static DocumentResponseDTO toDTO(Document document) {
+        int projetId = document.getProjet() != null ? document.getProjet().getId() : 0;
+        return new DocumentResponseDTO(
+                document.getId(),
+                document.getCode(),
+                document.getLibelle(),
+                document.getDescription(),
+                document.getChemin(),
+                projetId
+        );
     }
 
-    public static Document toEntity(DocumentDTO dto) {
-
+    public static Document toEntity(DocumentRequestDTO dto) {
         Document document = new Document();
-
-        document.setId(dto.getId());
-        document.setCode(dto.getCode());
-        document.setLibelle(dto.getLibelle());
-        document.setDescription(dto.getDescription());
-        document.setChemin(dto.getChemin());
-
+        document.setCode(dto.code());
+        document.setLibelle(dto.libelle());
+        document.setDescription(dto.description());
+        document.setChemin(dto.chemin());
         return document;
+    }
+
+    public static void updateEntity(Document document, DocumentRequestDTO dto) {
+        document.setCode(dto.code());
+        document.setLibelle(dto.libelle());
+        document.setDescription(dto.description());
+        document.setChemin(dto.chemin());
     }
 }

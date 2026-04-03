@@ -1,54 +1,51 @@
 package com.example.suivi_projet.organisation.mappers;
 
-import com.example.suivi_projet.organisation.dto.EmployeCreateDTO;
-import com.example.suivi_projet.organisation.dto.EmployeResponseDTO;
-import com.example.suivi_projet.organisation.entities.Employe;
-import com.example.suivi_projet.organisation.entities.Profil;
+import com.example.suivi_projet.organisation.dto.*;
+import com.example.suivi_projet.organisation.entities.*;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EmployeMapper {
 
-    public static EmployeResponseDTO toDTO(Employe employe) {
-        EmployeResponseDTO dto = new EmployeResponseDTO();
+    public Employe toEntity(EmployeRequestDTO dto, Profil profil) {
 
-        dto.setId(employe.getId());
-        dto.setMatricule(employe.getMatricule());
-        dto.setNom(employe.getNom());
-        dto.setPrenom(employe.getPrenom());
-        dto.setTelephone(employe.getTelephone());
-        dto.setEmail(employe.getEmail());
-        dto.setLogin(employe.getLogin());
-        dto.setPassword(employe.getPassword());
+        Employe e = new Employe();
 
+        e.setMatricule(dto.matricule());
+        e.setNom(dto.nom());
+        e.setPrenom(dto.prenom());
+        e.setTelephone(dto.telephone());
+        e.setEmail(dto.email());
+        e.setLogin(dto.login());
+        e.setPassword(dto.password());
+        e.setProfil(profil);
 
-        Profil profil = employe.getProfil();
-        dto.setProfilNom(profil != null ? (profil.getLibelle() != null ? profil.getLibelle() : "") : "");
-
-        return dto;
+        return e;
     }
 
-    public static Employe toEntity(EmployeCreateDTO dto, Profil profil) {
-        Employe employe = new Employe();
+    public EmployeResponseDTO toDTO(Employe e) {
 
-        employe.setMatricule(dto.getMatricule());
-        employe.setNom(dto.getNom());
-        employe.setPrenom(dto.getPrenom());
-        employe.setTelephone(dto.getTelephone());
-        employe.setEmail(dto.getEmail());
-        employe.setLogin(dto.getLogin());
-        employe.setPassword(dto.getPassword());
-        employe.setProfil(profil);
-
-        return employe;
+        return new EmployeResponseDTO(
+                e.getId(),
+                e.getMatricule(),
+                e.getNom(),
+                e.getPrenom(),
+                e.getTelephone(),
+                e.getEmail(),
+                e.getLogin(),
+                e.getProfil().getLibelle() // ✔ sans null
+        );
     }
 
-    public static void updateEntity(Employe employe, EmployeCreateDTO dto, Profil profil) {
-        employe.setMatricule(dto.getMatricule());
-        employe.setNom(dto.getNom());
-        employe.setPrenom(dto.getPrenom());
-        employe.setTelephone(dto.getTelephone());
-        employe.setEmail(dto.getEmail());
-        employe.setLogin(dto.getLogin());
-        employe.setPassword(dto.getPassword());
-        employe.setProfil(profil);
+    public void update(EmployeRequestDTO dto, Employe e, Profil profil) {
+
+        e.setMatricule(dto.matricule());
+        e.setNom(dto.nom());
+        e.setPrenom(dto.prenom());
+        e.setTelephone(dto.telephone());
+        e.setEmail(dto.email());
+        e.setLogin(dto.login());
+        e.setPassword(dto.password());
+        e.setProfil(profil);
     }
 }

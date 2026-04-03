@@ -1,95 +1,54 @@
 package com.example.suivi_projet.organisation.controllers;
 
-import com.example.suivi_projet.organisation.dto.EmployeCreateDTO;
-import com.example.suivi_projet.organisation.dto.EmployeResponseDTO;
+import com.example.suivi_projet.organisation.dto.*;
 import com.example.suivi_projet.organisation.services.EmployeService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/employes")
+@RequestMapping("/api/employes")
 public class EmployeController {
 
-    @Autowired
-    private EmployeService employeService;
+    private final EmployeService service;
 
-    // créer employé
-    @PostMapping("/save")
-    public ResponseEntity<EmployeResponseDTO> save(@Valid @RequestBody EmployeCreateDTO dto) {
-
-        EmployeResponseDTO employe = employeService.save(dto);
-
-        return new ResponseEntity<>(employe, HttpStatus.CREATED);
+    public EmployeController(EmployeService service) {
+        this.service = service;
     }
 
-    // modifier employé
-    @PutMapping("/update/{id}")
-    public ResponseEntity<EmployeResponseDTO> update(
-            @PathVariable int id,
-            @Valid @RequestBody EmployeCreateDTO dto) {
-
-        EmployeResponseDTO employe = employeService.update(id, dto);
-
-        return new ResponseEntity<>(employe, HttpStatus.OK);
+    @PostMapping
+    public EmployeResponseDTO save(@Valid @RequestBody EmployeRequestDTO dto) {
+        return service.save(dto);
     }
 
-    // trouver par id
+    @GetMapping
+    public List<EmployeResponseDTO> findAll(@RequestParam(required = false) String nom) {
+        return service.findAll(nom);
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeResponseDTO> findById(@PathVariable int id) {
-
-        EmployeResponseDTO employe = employeService.findById(id);
-
-        return new ResponseEntity<>(employe, HttpStatus.OK);
+    public EmployeResponseDTO findById(@PathVariable int id) {
+        return service.findById(id);
     }
 
-    // tous les employés
-    @GetMapping("/all")
-    public ResponseEntity<List<EmployeResponseDTO>> findAll() {
-
-        List<EmployeResponseDTO> employes = employeService.findAll();
-
-        return new ResponseEntity<>(employes, HttpStatus.OK);
+    @PutMapping("/{id}")
+    public EmployeResponseDTO update(@PathVariable int id,
+                                     @Valid @RequestBody EmployeRequestDTO dto) {
+        return service.update(id, dto);
     }
 
-    // supprimer
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
-
-        boolean deleted = employeService.delete(id);
-
-        if (deleted)
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable int id) {
+        service.delete(id);
     }
 
-    // recherche
-    @GetMapping("/search")
-    public ResponseEntity<List<EmployeResponseDTO>> search(
-            @RequestParam(required = false) String matricule,
-            @RequestParam(required = false) String login,
-            @RequestParam(required = false) String email) {
-
-        List<EmployeResponseDTO> result = employeService.search(matricule, login, email);
-
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    // employés disponibles
     @GetMapping("/disponibles")
-    public ResponseEntity<List<EmployeResponseDTO>> getDisponibles(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin) {
+    public List<EmployeResponseDTO> disponibles(
+            @RequestParam LocalDate dateDebut,
+            @RequestParam LocalDate dateFin) {
 
-        List<EmployeResponseDTO> employes = employeService.getDisponibles(dateDebut, dateFin);
-
-        return new ResponseEntity<>(employes, HttpStatus.OK);
+        return service.getDisponibles(dateDebut, dateFin);
     }
 }
