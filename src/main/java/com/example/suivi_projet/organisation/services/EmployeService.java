@@ -1,131 +1,94 @@
 package com.example.suivi_projet.organisation.services;
 
-import com.example.suivi_projet.organisation.dto.EmployeCreateDTO;
-import com.example.suivi_projet.organisation.dto.EmployeResponseDTO;
-import com.example.suivi_projet.organisation.entities.Employe;
-import com.example.suivi_projet.organisation.entities.Profil;
+import com.example.suivi_projet.organisation.dto.*;
+import com.example.suivi_projet.organisation.entities.*;
 import com.example.suivi_projet.organisation.mappers.EmployeMapper;
-import com.example.suivi_projet.organisation.repositories.EmployeRepository;
-import com.example.suivi_projet.organisation.repositories.ProfilRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.suivi_projet.organisation.repositories.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class EmployeService {
 
-    @Autowired
-    private EmployeRepository employeRepository;
+    private final EmployeRepository employeRepository;
+    private final ProfilRepository profilRepository;
+    private final EmployeMapper mapper;
 
-    @Autowired
-    private ProfilRepository profilRepository;
-
-
-    // créer employé
-    public EmployeResponseDTO save(EmployeCreateDTO dto) {
-
-        if (employeRepository.findByMatricule(dto.getMatricule()) != null)
-            return null;
-
-        if (employeRepository.findByLogin(dto.getLogin()) != null)
-            return null;
-
-        Optional<Profil> profilOptional = profilRepository.findById(dto.getProfilId());
-
-        if (!profilOptional.isPresent())
-            return null;
-
-        Profil profil = profilOptional.get();
-
-        Employe employe = EmployeMapper.toEntity(dto, profil);
-
-        Employe saved = employeRepository.save(employe);
-
-        return EmployeMapper.toDTO(saved);
+    public EmployeService(EmployeRepository employeRepository,
+                          ProfilRepository profilRepository,
+                          EmployeMapper mapper) {
+        this.employeRepository = employeRepository;
+        this.profilRepository = profilRepository;
+        this.mapper = mapper;
     }
 
+    // CREATE
+    public EmployeResponseDTO save(EmployeRequestDTO dto) {
 
-    // modifier employé
-    public EmployeResponseDTO update(int id, EmployeCreateDTO dto) {
+        if (employeRepository.findByMatricule(dto.matricule()) != null)
+            throw new RuntimeException("Matricule déjà utilisé");
 
-        Optional<Employe> employeOptional = employeRepository.findById(id);
+        if (employeRepository.findByLogin(dto.login()) != null)
+            throw new RuntimeException("Login déjà utilisé");
 
-        if (!employeOptional.isPresent())
-            return null;
+        Profil profil = profilRepository.findById(dto.profilId())
+                .orElseThrow(() -> new RuntimeException("Profil introuvable"));
 
-        Optional<Profil> profilOptional = profilRepository.findById(dto.getProfilId());
+        Employe e = mapper.toEntity(dto, profil);
 
-        if (!profilOptional.isPresent())
-            return null;
-
-        Employe employe = employeOptional.get();
-        Profil profil = profilOptional.get();
-
-        EmployeMapper.updateEntity(employe, dto, profil);
-
-        Employe updated = employeRepository.save(employe);
-
-        return EmployeMapper.toDTO(updated);
+        return mapper.toDTO(employeRepository.save(e));
     }
 
-
-    // trouver par id
-    public EmployeResponseDTO findById(int id) {
-
-        Optional<Employe> employeOptional = employeRepository.findById(id);
-
-        if (!employeOptional.isPresent())
-            return null;
-
-        return EmployeMapper.toDTO(employeOptional.get());
-    }
-
-
-    // tous les employés
-    public List<EmployeResponseDTO> findAll() {
+    // GET ALL
+    public List<EmployeResponseDTO> findAll(String nom) {
 
         return employeRepository.findAll()
                 .stream()
-                .map(EmployeMapper::toDTO)
-                .collect(Collectors.toList());
+                .filter(e -> nom == null || e.getNom().toLowerCase().contains(nom.toLowerCase()))
+                .map(mapper::toDTO)
+                .toList();
     }
 
+    // GET BY ID
+    public EmployeResponseDTO findById(int id) {
 
-    // supprimer
-    public boolean delete(int id) {
+        Employe e = employeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employe introuvable"));
 
-        Optional<Employe> employeOptional = employeRepository.findById(id);
-
-        if (employeOptional.isPresent()) {
-            employeRepository.delete(employeOptional.get());
-            return true;
-        }
-
-        return false;
+        return mapper.toDTO(e);
     }
 
+    // UPDATE
+    public EmployeResponseDTO update(int id, EmployeRequestDTO dto) {
 
-    // recherche
-    public List<EmployeResponseDTO> search(String matricule, String login, String email) {
+        Employe e = employeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employe introuvable"));
 
-        return employeRepository.findAll().stream()
-                .filter(e ->
-                        (matricule == null || e.getMatricule().equalsIgnoreCase(matricule)) &&
-                                (login == null || e.getLogin().equalsIgnoreCase(login)) &&
-                                (email == null || e.getEmail().equalsIgnoreCase(email))
-                )
-                .map(EmployeMapper::toDTO)
-                .collect(Collectors.toList());
+        Profil profil = profilRepository.findById(dto.profilId())
+                .orElseThrow(() -> new RuntimeException("Profil introuvable"));
+
+        mapper.update(dto, e, profil);
+
+        return mapper.toDTO(employeRepository.save(e));
     }
 
+    // DELETE
+    public void delete(int id) {
 
-    // employés disponibles (exemple simple)
-    public List<EmployeResponseDTO> getDisponibles(LocalDate dateDebut, LocalDate dateFin) {
+        Employe e = employeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employe introuvable"));
 
-        return findAll();
+        employeRepository.delete(e);
+    }
+
+    // DISPONIBILITÉ
+    public List<EmployeResponseDTO> getDisponibles(LocalDate d1, LocalDate d2) {
+
+        return employeRepository.findAll()
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 }
