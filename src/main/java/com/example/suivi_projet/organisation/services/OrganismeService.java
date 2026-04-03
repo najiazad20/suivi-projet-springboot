@@ -1,49 +1,94 @@
 package com.example.suivi_projet.organisation.services;
 
+import com.example.suivi_projet.organisation.dto.OrganismeRequestDTO;
+import com.example.suivi_projet.organisation.dto.OrganismeResponseDTO;
 import com.example.suivi_projet.organisation.entities.Organisme;
+import com.example.suivi_projet.organisation.mappers.OrganismeMapper;
 import com.example.suivi_projet.organisation.repositories.OrganismeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrganismeService {
 
-    @Autowired
-    private OrganismeRepository repository;
+    private final OrganismeRepository organismeRepository;
+    private final OrganismeMapper organismeMapper;
 
-    public Organisme save(Organisme org) {
-        return repository.save(org);
+    public OrganismeService(OrganismeRepository organismeRepository,
+                            OrganismeMapper organismeMapper) {
+        this.organismeRepository = organismeRepository;
+        this.organismeMapper = organismeMapper;
     }
 
-    public Optional<Organisme> findById(int id) {
-        return repository.findById(id);
+    public OrganismeResponseDTO addOrganisme(OrganismeRequestDTO dto) {
+
+        Organisme organisme = organismeMapper.toEntity(dto);
+        Organisme saved = organismeRepository.save(organisme);
+
+        return organismeMapper.toDTO(saved);
     }
 
-    public List<Organisme> findAll() {
-        return repository.findAll();
+    public List<OrganismeResponseDTO> getAllOrganismes() {
+
+        return organismeRepository.findAll()
+                .stream()
+                .map(organismeMapper::toDTO)
+                .toList();
     }
 
-    public List<Organisme> findByNom(String nom) {
-        return repository.findByNom(nom);
+    public OrganismeResponseDTO getOrganismeById(Integer id) {
+
+        Organisme organisme = organismeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organisme introuvable avec id : " + id));
+
+        return organismeMapper.toDTO(organisme);
     }
 
-    public List<Organisme> findByCode(String code) {
-        return repository.findByCode(code);
+    public OrganismeResponseDTO updateOrganisme(Integer id, OrganismeRequestDTO dto) {
+
+        Organisme organisme = organismeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organisme introuvable avec id : " + id));
+
+        organismeMapper.updateEntityFromDTO(dto, organisme);
+
+        Organisme updated = organismeRepository.save(organisme);
+
+        return organismeMapper.toDTO(updated);
     }
 
-    public List<Organisme> findByNomContact(String contact) {
-        return repository.findByNomContact(contact);
+    public void deleteOrganisme(Integer id) {
+
+        Organisme organisme = organismeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organisme introuvable avec id : " + id));
+
+        organismeRepository.delete(organisme);
     }
 
-    public boolean delete(int id) {
-        Optional<Organisme> org = repository.findById(id);
-        if(org.isPresent()) {
-            repository.delete(org.get());
-            return true;
+    // 🔥 Recherche demandée (nom / code / contact)
+    public List<OrganismeResponseDTO> search(String nom, String code, String contact) {
+
+        if (nom != null) {
+            return organismeRepository.findByNom(nom)
+                    .stream()
+                    .map(organismeMapper::toDTO)
+                    .toList();
         }
-        return false;
+
+        if (code != null) {
+            return organismeRepository.findByCode(code)
+                    .stream()
+                    .map(organismeMapper::toDTO)
+                    .toList();
+        }
+
+        if (contact != null) {
+            return organismeRepository.findByNomContact(contact)
+                    .stream()
+                    .map(organismeMapper::toDTO)
+                    .toList();
+        }
+
+        return getAllOrganismes();
     }
 }

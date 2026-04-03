@@ -1,32 +1,39 @@
 package com.example.suivi_projet.facturation.mappers;
 
-import com.example.suivi_projet.facturation.dto.FactureDTO;
+import com.example.suivi_projet.facturation.dto.FactureRequestDTO;
+import com.example.suivi_projet.facturation.dto.FactureResponseDTO;
 import com.example.suivi_projet.facturation.entities.Facture;
 import com.example.suivi_projet.projet.entities.Phase;
+import org.springframework.stereotype.Component;
 
+@Component
 public class FactureMapper {
 
-    public static FactureDTO toDTO(Facture facture) {
-        return new FactureDTO(
+    public Facture toEntity(FactureRequestDTO dto, Phase phase) {
+
+        Facture facture = new Facture();
+
+        facture.setCode(dto.code());
+        facture.setDateFacture(dto.dateFacture());
+        facture.setPhase(phase);
+
+        return facture;
+    }
+
+    public FactureResponseDTO toDTO(Facture facture) {
+
+        return new FactureResponseDTO(
                 facture.getId(),
                 facture.getCode(),
                 facture.getDateFacture(),
                 facture.getPhase().getId(),
-                facture.getPhase().getMontant() // Montant de la phase
+                facture.getPhase().getMontant()
         );
     }
 
-    public static Facture toEntity(FactureDTO dto, Phase phase) {
-        Facture facture = new Facture();
-        facture.setCode(dto.getCode());
-        facture.setDateFacture(dto.getDateFacture());
-        facture.setPhase(phase);
-        return facture;
-    }
+    public void updateEntityFromDTO(FactureRequestDTO dto, Facture facture) {
 
-    public static void updateEntity(Facture facture, FactureDTO dto, Phase phase) {
-        facture.setCode(dto.getCode());
-        facture.setDateFacture(dto.getDateFacture());
-        facture.setPhase(phase);
+        facture.setCode(dto.code());
+        facture.setDateFacture(dto.dateFacture());
     }
 }

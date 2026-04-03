@@ -1,68 +1,66 @@
 package com.example.suivi_projet.facturation.controllers;
 
-import com.example.suivi_projet.facturation.dto.FactureDTO;
-import com.example.suivi_projet.facturation.entities.Facture;
-import com.example.suivi_projet.facturation.mappers.FactureMapper;
+import jakarta.validation.Valid;
+import com.example.suivi_projet.facturation.dto.FactureRequestDTO;
+import com.example.suivi_projet.facturation.dto.FactureResponseDTO;
 import com.example.suivi_projet.facturation.services.FactureService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
 public class FactureController {
 
-    @Autowired
-    private FactureService factureService;
+    private final FactureService factureService;
 
+    public FactureController(FactureService factureService) {
+        this.factureService = factureService;
+    }
+
+    // CREATE
     @PostMapping("/phases/{phaseId}/facture")
-    public ResponseEntity<FactureDTO> createFacture(@PathVariable int phaseId,
-                                                    @RequestBody FactureDTO dto) {
-        Facture facture = FactureMapper.toEntity(dto, null); // Phase sera attachée dans service
-        Facture created = factureService.createFacture(phaseId, facture);
-        return new ResponseEntity<>(FactureMapper.toDTO(created), HttpStatus.CREATED);
+    @ResponseStatus(HttpStatus.CREATED)
+    public FactureResponseDTO createFacture(@PathVariable int phaseId,
+                                            @Valid @RequestBody FactureRequestDTO dto) {
+        return factureService.createFacture(phaseId, dto);
     }
 
+    // GET ALL
     @GetMapping("/factures")
-    public ResponseEntity<List<FactureDTO>> getAllFactures() {
-        List<FactureDTO> list = factureService.getAllFactures()
-                .stream()
-                .map(FactureMapper::toDTO)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    public List<FactureResponseDTO> getAllFactures() {
+        return factureService.getAllFactures();
     }
 
+    // GET BY ID
     @GetMapping("/factures/{id}")
-    public ResponseEntity<FactureDTO> getFacture(@PathVariable int id) {
-        Facture facture = factureService.getFactureById(id);
-        return new ResponseEntity<>(FactureMapper.toDTO(facture), HttpStatus.OK);
+    public FactureResponseDTO getFactureById(@PathVariable int id) {
+        return factureService.getFactureById(id);
     }
 
+    // UPDATE
     @PutMapping("/factures/{id}")
-    public ResponseEntity<FactureDTO> updateFacture(@PathVariable int id,
-                                                    @RequestBody FactureDTO dto) {
-        Facture factureDetails = FactureMapper.toEntity(dto, null); // Phase non modifiable
-        Facture updated = factureService.updateFacture(id, factureDetails);
-        return new ResponseEntity<>(FactureMapper.toDTO(updated), HttpStatus.OK);
+    public FactureResponseDTO updateFacture(@PathVariable int id,
+                                            @Valid @RequestBody FactureRequestDTO dto) {
+        return factureService.updateFacture(id, dto);
     }
 
+    // DELETE
     @DeleteMapping("/factures/{id}")
-    public ResponseEntity<Void> deleteFacture(@PathVariable int id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFacture(@PathVariable int id) {
         factureService.deleteFacture(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    // SEARCH BY DATE
     @GetMapping("/factures/byDate")
-    public ResponseEntity<List<FactureDTO>> getFacturesByDate(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date date) {
-        List<FactureDTO> list = factureService.getFacturesByDate(date)
-                .stream()
-                .map(FactureMapper::toDTO)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    public List<FactureResponseDTO> getFacturesByDate(@RequestParam Date date) {
+        return factureService.getFacturesByDate(date);
+    }
+    @GetMapping("/factures/byCode")
+    public List<FactureResponseDTO> getFacturesByCode(@RequestParam String code) {
+        return factureService.getFacturesByCode(code);
     }
 }

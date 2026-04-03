@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface FactureRepository extends JpaRepository<Facture, Integer> {
 
-    Optional<Facture> findByCode(String code);
+    List<Facture> findByCode(String code);
 
     List<Facture> findByDateFacture(Date dateFacture);
 

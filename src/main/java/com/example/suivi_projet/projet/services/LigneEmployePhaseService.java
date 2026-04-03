@@ -1,87 +1,104 @@
 package com.example.suivi_projet.projet.services;
 
-import com.example.suivi_projet.projet.dto.LigneEmployePhaseCreateDTO;
-import com.example.suivi_projet.projet.dto.LigneEmployePhaseResponseDTO;
-import com.example.suivi_projet.projet.entities.LigneEmployePhase;
-import com.example.suivi_projet.projet.entities.LigneEmployePhaseId;
-import com.example.suivi_projet.projet.entities.Phase;
-import com.example.suivi_projet.projet.repositories.LigneEmployePhaseRepository;
-import com.example.suivi_projet.projet.repositories.PhaseRepository;
-import com.example.suivi_projet.organisation.entities.Employe;
-import com.example.suivi_projet.organisation.repositories.EmployeRepository;
+import com.example.suivi_projet.projet.dto.*;
+import com.example.suivi_projet.projet.entities.*;
 import com.example.suivi_projet.projet.mappers.LigneEmployePhaseMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.suivi_projet.projet.repositories.*;
+import com.example.suivi_projet.organisation.repositories.EmployeRepository;
+import com.example.suivi_projet.organisation.entities.Employe;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class LigneEmployePhaseService {
 
-    @Autowired
-    private LigneEmployePhaseRepository repo;
+    private final LigneEmployePhaseRepository repo;
+    private final PhaseRepository phaseRepo;
+    private final EmployeRepository employeRepo;
+    private final LigneEmployePhaseMapper mapper;
 
-    @Autowired
-    private PhaseRepository phaseRepo;
+    public LigneEmployePhaseService(LigneEmployePhaseRepository repo,
+                                    PhaseRepository phaseRepo,
+                                    EmployeRepository employeRepo,
+                                    LigneEmployePhaseMapper mapper) {
+        this.repo = repo;
+        this.phaseRepo = phaseRepo;
+        this.employeRepo = employeRepo;
+        this.mapper = mapper;
+    }
 
-    @Autowired
-    private EmployeRepository employeRepo;
+    // CREATE
+    public LigneEmployePhaseResponseDTO create(int phaseId, int employeId,
+                                               LigneEmployePhaseRequestDTO dto) {
 
-    public LigneEmployePhaseResponseDTO create(int phaseId, int employeId, LigneEmployePhaseCreateDTO dto) {
-        Phase phase = phaseRepo.findById(phaseId).get();
-        Employe employe = employeRepo.findById(employeId).get();
+        Phase phase = phaseRepo.findById(phaseId)
+                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
 
-        if(dto.getDateDebut().before(phase.getDateDebut()) || dto.getDateFin().after(phase.getDateFin())) {
-            throw new RuntimeException("Dates doivent être dans l'intervalle de la phase");
+        Employe employe = employeRepo.findById(employeId)
+                .orElseThrow(() -> new RuntimeException("Employé introuvable"));
+
+        // ❗ règles métier
+        if (dto.dateDebut().before(phase.getDateDebut()) ||
+                dto.dateFin().after(phase.getDateFin())) {
+            throw new RuntimeException("Dates hors intervalle phase");
         }
 
         LigneEmployePhaseId id = new LigneEmployePhaseId(employeId, phaseId);
-        if(repo.findById(id).isPresent()) {
+
+        if (repo.existsById(id)) {
             throw new RuntimeException("Affectation déjà existante");
         }
 
-        LigneEmployePhase l = LigneEmployePhaseMapper.toEntity(dto, employe, phase);
-        repo.save(l);
-        return LigneEmployePhaseMapper.toDTO(l);
+        LigneEmployePhase l = mapper.toEntity(dto, employe, phase);
+
+        return mapper.toResponseDTO(repo.save(l));
     }
 
+    // GET employes par phase
     public List<LigneEmployePhaseResponseDTO> getEmployesByPhase(int phaseId) {
-        List<LigneEmployePhase> list = repo.findByPhaseId(phaseId);
-        List<LigneEmployePhaseResponseDTO> result = new ArrayList<>();
-        for(LigneEmployePhase l : list) {
-            result.add(LigneEmployePhaseMapper.toDTO(l));
-        }
-        return result;
+        return repo.findByPhaseId(phaseId)
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 
+    // GET ONE
     public LigneEmployePhaseResponseDTO get(int phaseId, int employeId) {
-        LigneEmployePhase l = repo.findById(new LigneEmployePhaseId(employeId, phaseId)).get();
-        return LigneEmployePhaseMapper.toDTO(l);
+        LigneEmployePhase l = repo.findById(new LigneEmployePhaseId(employeId, phaseId))
+                .orElseThrow(() -> new RuntimeException("Affectation introuvable"));
+
+        return mapper.toResponseDTO(l);
     }
 
-    public LigneEmployePhaseResponseDTO update(int phaseId, int employeId, LigneEmployePhaseCreateDTO dto) {
-        LigneEmployePhase l = repo.findById(new LigneEmployePhaseId(employeId, phaseId)).get();
-        LigneEmployePhaseMapper.updateEntity(l, dto);
-        repo.save(l);
-        return LigneEmployePhaseMapper.toDTO(l);
+    // UPDATE
+    public LigneEmployePhaseResponseDTO update(int phaseId, int employeId,
+                                               LigneEmployePhaseRequestDTO dto) {
+
+        LigneEmployePhase l = repo.findById(new LigneEmployePhaseId(employeId, phaseId))
+                .orElseThrow(() -> new RuntimeException("Affectation introuvable"));
+
+        mapper.updateEntityFromDTO(dto, l);
+
+        return mapper.toResponseDTO(repo.save(l));
     }
 
-    public boolean delete(int phaseId, int employeId) {
+    // DELETE
+    public void delete(int phaseId, int employeId) {
         LigneEmployePhaseId id = new LigneEmployePhaseId(employeId, phaseId);
-        if(repo.existsById(id)) {
-            repo.deleteById(id);
-            return true;
+
+        if (!repo.existsById(id)) {
+            throw new RuntimeException("Affectation introuvable");
         }
-        return false;
+
+        repo.deleteById(id);
     }
 
+    // phases par employe
     public List<LigneEmployePhaseResponseDTO> getPhasesByEmploye(int employeId) {
-        List<LigneEmployePhase> list = repo.findByEmployeId(employeId);
-        List<LigneEmployePhaseResponseDTO> result = new ArrayList<>();
-        for(LigneEmployePhase l : list) {
-            result.add(LigneEmployePhaseMapper.toDTO(l));
-        }
-        return result;
+        return repo.findByEmployeId(employeId)
+                .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
     }
 }

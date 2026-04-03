@@ -1,81 +1,112 @@
 package com.example.suivi_projet.facturation.services;
 
+import com.example.suivi_projet.facturation.dto.FactureRequestDTO;
+import com.example.suivi_projet.facturation.dto.FactureResponseDTO;
 import com.example.suivi_projet.facturation.entities.Facture;
+import com.example.suivi_projet.facturation.mappers.FactureMapper;
 import com.example.suivi_projet.facturation.repositories.FactureRepository;
 import com.example.suivi_projet.projet.entities.Phase;
 import com.example.suivi_projet.projet.repositories.PhaseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FactureService {
 
-    @Autowired
-    private FactureRepository factureRepository;
+    private final FactureRepository factureRepository;
+    private final PhaseRepository phaseRepository;
+    private final FactureMapper factureMapper;
 
-    @Autowired
-    private PhaseRepository phaseRepository;
+    public FactureService(FactureRepository factureRepository,
+                          PhaseRepository phaseRepository,
+                          FactureMapper factureMapper) {
+        this.factureRepository = factureRepository;
+        this.phaseRepository = phaseRepository;
+        this.factureMapper = factureMapper;
+    }
 
-    public Facture createFacture(int phaseId, Facture facture) {
-        Optional<Phase> optionalPhase = phaseRepository.findById(phaseId);
-        if (optionalPhase.isEmpty()) {
-            throw new RuntimeException("Phase introuvable");
-        }
+    public FactureResponseDTO createFacture(Integer phaseId, FactureRequestDTO dto) {
 
-        Phase phase = optionalPhase.get();
+        Phase phase = phaseRepository.findById(phaseId)
+                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
 
-        // Règle : phase terminée
+        // ✅ règle 1 : phase terminée
         if (!phase.isEtatRealisation()) {
             throw new RuntimeException("La phase doit être terminée");
         }
 
-        // Règle : pas deux factures
+        // ✅ règle 2 : pas double facturation
         if (phase.isEtatFacturation()) {
-            throw new RuntimeException("Cette phase est déjà facturée");
+            throw new RuntimeException("Phase déjà facturée");
         }
 
-        facture.setPhase(phase);
+        Facture facture = factureMapper.toEntity(dto, phase);
 
-        // Mettre à jour l'état facturation de la phase
+        // mise à jour état phase
         phase.setEtatFacturation(true);
         phaseRepository.save(phase);
 
-        return factureRepository.save(facture);
+        Facture saved = factureRepository.save(facture);
+
+        return factureMapper.toDTO(saved);
     }
 
-    public Facture updateFacture(int id, Facture factureDetails) {
-        Facture facture = factureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facture introuvable"));
-        facture.setCode(factureDetails.getCode());
-        facture.setDateFacture(factureDetails.getDateFacture());
-        // Ne pas changer la phase ici pour éviter incohérence
-        return factureRepository.save(facture);
+    public List<FactureResponseDTO> getAllFactures() {
+
+        return factureRepository.findAll()
+                .stream()
+                .map(factureMapper::toDTO)
+                .toList();
     }
 
-    public void deleteFacture(int id) {
+    public FactureResponseDTO getFactureById(Integer id) {
+
         Facture facture = factureRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Facture introuvable"));
+
+        return factureMapper.toDTO(facture);
+    }
+
+    public FactureResponseDTO updateFacture(Integer id, FactureRequestDTO dto) {
+
+        Facture facture = factureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Facture introuvable"));
+
+        factureMapper.updateEntityFromDTO(dto, facture);
+
+        Facture updated = factureRepository.save(facture);
+
+        return factureMapper.toDTO(updated);
+    }
+
+    public void deleteFacture(Integer id) {
+
+        Facture facture = factureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Facture introuvable"));
+
         Phase phase = facture.getPhase();
-        // Mettre à jour l'état facturation de la phase
+
+        // remise à false si suppression
         phase.setEtatFacturation(false);
         phaseRepository.save(phase);
 
         factureRepository.delete(facture);
     }
+    public List<FactureResponseDTO> getFacturesByCode(String code) {
 
-    public List<Facture> getAllFactures() {
-        return factureRepository.findAll();
+        return factureRepository.findByCode(code)
+                .stream()
+                .map(factureMapper::toDTO)
+                .toList();
     }
+    // 🔥 recherche comptable
+    public List<FactureResponseDTO> getFacturesByDate(java.util.Date date) {
 
-    public Facture getFactureById(int id) {
-        return factureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facture introuvable"));
-    }
-    public List<Facture> getFacturesByDate(Date date) {
-        return factureRepository.findByDateFacture(date);
+        return factureRepository.findByDateFacture(date)
+                .stream()
+                .map(factureMapper::toDTO)
+                .toList();
     }
 }

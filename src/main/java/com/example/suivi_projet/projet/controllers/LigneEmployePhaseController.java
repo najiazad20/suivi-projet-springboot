@@ -1,11 +1,9 @@
 package com.example.suivi_projet.projet.controllers;
 
-import com.example.suivi_projet.projet.dto.LigneEmployePhaseCreateDTO;
-import com.example.suivi_projet.projet.dto.LigneEmployePhaseResponseDTO;
+import jakarta.validation.Valid;
+import com.example.suivi_projet.projet.dto.*;
 import com.example.suivi_projet.projet.services.LigneEmployePhaseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,47 +12,55 @@ import java.util.List;
 @RequestMapping("/api")
 public class LigneEmployePhaseController {
 
-    @Autowired
-    private LigneEmployePhaseService service;
+    private final LigneEmployePhaseService service;
+
+    public LigneEmployePhaseController(LigneEmployePhaseService service) {
+        this.service = service;
+    }
 
     @PostMapping("/phases/{phaseId}/employes/{employeId}")
-    public ResponseEntity<LigneEmployePhaseResponseDTO> create(
+    @ResponseStatus(HttpStatus.CREATED)
+    public LigneEmployePhaseResponseDTO create(
             @PathVariable int phaseId,
             @PathVariable int employeId,
-            @RequestBody LigneEmployePhaseCreateDTO dto) {
-        return new ResponseEntity<>(service.create(phaseId, employeId, dto), HttpStatus.CREATED);
+            @Valid @RequestBody LigneEmployePhaseRequestDTO dto) {
+
+        return service.create(phaseId, employeId, dto);
     }
 
     @GetMapping("/phases/{phaseId}/employes")
-    public ResponseEntity<List<LigneEmployePhaseResponseDTO>> getEmployesByPhase(@PathVariable int phaseId) {
-        return new ResponseEntity<>(service.getEmployesByPhase(phaseId), HttpStatus.OK);
+    public List<LigneEmployePhaseResponseDTO> getEmployes(@PathVariable int phaseId) {
+        return service.getEmployesByPhase(phaseId);
     }
 
     @GetMapping("/phases/{phaseId}/employes/{employeId}")
-    public ResponseEntity<LigneEmployePhaseResponseDTO> get(
+    public LigneEmployePhaseResponseDTO get(
             @PathVariable int phaseId,
             @PathVariable int employeId) {
-        return new ResponseEntity<>(service.get(phaseId, employeId), HttpStatus.OK);
+
+        return service.get(phaseId, employeId);
     }
 
     @PutMapping("/phases/{phaseId}/employes/{employeId}")
-    public ResponseEntity<LigneEmployePhaseResponseDTO> update(
+    public LigneEmployePhaseResponseDTO update(
             @PathVariable int phaseId,
             @PathVariable int employeId,
-            @RequestBody LigneEmployePhaseCreateDTO dto) {
-        return new ResponseEntity<>(service.update(phaseId, employeId, dto), HttpStatus.OK);
+            @Valid @RequestBody LigneEmployePhaseRequestDTO dto) {
+
+        return service.update(phaseId, employeId, dto);
     }
 
     @DeleteMapping("/phases/{phaseId}/employes/{employeId}")
-    public ResponseEntity<Void> delete(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(
             @PathVariable int phaseId,
             @PathVariable int employeId) {
-        boolean deleted = service.delete(phaseId, employeId);
-        return deleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        service.delete(phaseId, employeId);
     }
 
     @GetMapping("/employes/{employeId}/phases")
-    public ResponseEntity<List<LigneEmployePhaseResponseDTO>> getPhasesByEmploye(@PathVariable int employeId) {
-        return new ResponseEntity<>(service.getPhasesByEmploye(employeId), HttpStatus.OK);
+    public List<LigneEmployePhaseResponseDTO> getPhases(@PathVariable int employeId) {
+        return service.getPhasesByEmploye(employeId);
     }
 }

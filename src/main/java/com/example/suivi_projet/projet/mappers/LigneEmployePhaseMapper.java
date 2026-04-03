@@ -1,18 +1,25 @@
 package com.example.suivi_projet.projet.mappers;
 
-import com.example.suivi_projet.projet.dto.LigneEmployePhaseCreateDTO;
-import com.example.suivi_projet.projet.dto.LigneEmployePhaseResponseDTO;
-import com.example.suivi_projet.projet.entities.LigneEmployePhase;
+import com.example.suivi_projet.projet.dto.*;
+import com.example.suivi_projet.projet.entities.*;
 import com.example.suivi_projet.organisation.entities.Employe;
-import com.example.suivi_projet.projet.entities.Phase;
+import org.springframework.stereotype.Component;
 
+@Component
 public class LigneEmployePhaseMapper {
 
-    public static LigneEmployePhase toEntity(LigneEmployePhaseCreateDTO dto, Employe employe, Phase phase) {
-        return new LigneEmployePhase(dto.getDateDebut(), dto.getDateFin(), employe, phase);
+    public LigneEmployePhase toEntity(LigneEmployePhaseRequestDTO dto,
+                                      Employe employe,
+                                      Phase phase) {
+        return new LigneEmployePhase(
+                dto.dateDebut(),
+                dto.dateFin(),
+                employe,
+                phase
+        );
     }
 
-    public static LigneEmployePhaseResponseDTO toDTO(LigneEmployePhase l) {
+    public LigneEmployePhaseResponseDTO toResponseDTO(LigneEmployePhase l) {
         return new LigneEmployePhaseResponseDTO(
                 l.getEmploye().getId(),
                 l.getPhase().getId(),
@@ -21,8 +28,9 @@ public class LigneEmployePhaseMapper {
         );
     }
 
-    public static void updateEntity(LigneEmployePhase l, LigneEmployePhaseCreateDTO dto) {
-        l.setDateDebut(dto.getDateDebut());
-        l.setDateFin(dto.getDateFin());
+    public void updateEntityFromDTO(LigneEmployePhaseRequestDTO dto,
+                                    LigneEmployePhase l) {
+        l.setDateDebut(dto.dateDebut());
+        l.setDateFin(dto.dateFin());
     }
 }
