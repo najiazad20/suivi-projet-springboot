@@ -87,7 +87,7 @@ public class FactureService {
 
         Phase phase = facture.getPhase();
 
-        // remise à false si suppression
+        //  false si suppression
         phase.setEtatFacturation(false);
         phaseRepository.save(phase);
 

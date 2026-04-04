@@ -6,6 +6,9 @@ import com.example.suivi_projet.projet.mappers.LigneEmployePhaseMapper;
 import com.example.suivi_projet.projet.repositories.*;
 import com.example.suivi_projet.organisation.repositories.EmployeRepository;
 import com.example.suivi_projet.organisation.entities.Employe;
+import com.example.suivi_projet.exceptions.ResourceNotFoundException;
+import com.example.suivi_projet.exceptions.BusinessException;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,21 +36,21 @@ public class LigneEmployePhaseService {
                                                LigneEmployePhaseRequestDTO dto) {
 
         Phase phase = phaseRepo.findById(phaseId)
-                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Phase introuvable"));
 
         Employe employe = employeRepo.findById(employeId)
-                .orElseThrow(() -> new RuntimeException("Employé introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
 
-        // ❗ règles métier
+        // règles métier
         if (dto.dateDebut().before(phase.getDateDebut()) ||
                 dto.dateFin().after(phase.getDateFin())) {
-            throw new RuntimeException("Dates hors intervalle phase");
+            throw new BusinessException("Dates hors intervalle phase");
         }
 
         LigneEmployePhaseId id = new LigneEmployePhaseId(employeId, phaseId);
 
         if (repo.existsById(id)) {
-            throw new RuntimeException("Affectation déjà existante");
+            throw new BusinessException("Affectation déjà existante");
         }
 
         LigneEmployePhase l = mapper.toEntity(dto, employe, phase);
@@ -66,7 +69,7 @@ public class LigneEmployePhaseService {
     // GET ONE
     public LigneEmployePhaseResponseDTO get(int phaseId, int employeId) {
         LigneEmployePhase l = repo.findById(new LigneEmployePhaseId(employeId, phaseId))
-                .orElseThrow(() -> new RuntimeException("Affectation introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Affectation introuvable"));
 
         return mapper.toResponseDTO(l);
     }
@@ -76,7 +79,7 @@ public class LigneEmployePhaseService {
                                                LigneEmployePhaseRequestDTO dto) {
 
         LigneEmployePhase l = repo.findById(new LigneEmployePhaseId(employeId, phaseId))
-                .orElseThrow(() -> new RuntimeException("Affectation introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Affectation introuvable"));
 
         mapper.updateEntityFromDTO(dto, l);
 
@@ -88,7 +91,7 @@ public class LigneEmployePhaseService {
         LigneEmployePhaseId id = new LigneEmployePhaseId(employeId, phaseId);
 
         if (!repo.existsById(id)) {
-            throw new RuntimeException("Affectation introuvable");
+            throw new ResourceNotFoundException("Affectation introuvable");
         }
 
         repo.deleteById(id);
