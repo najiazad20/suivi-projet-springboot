@@ -12,5 +12,6 @@ public interface PhaseRepository extends JpaRepository<Phase, Integer> {
     List<Phase> findByEtatRealisationTrueAndEtatFacturationFalse();
 
     List<Phase> findByEtatFacturationTrueAndEtatPaiementFalse();
+    List<Phase> findByEtatPaiementTrue();
 
 }
