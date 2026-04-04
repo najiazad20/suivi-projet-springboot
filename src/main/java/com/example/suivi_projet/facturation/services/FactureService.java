@@ -1,5 +1,6 @@
 package com.example.suivi_projet.facturation.services;
-
+import com.example.suivi_projet.exceptions.ResourceNotFoundException;
+import com.example.suivi_projet.exceptions.BusinessException;
 import com.example.suivi_projet.facturation.dto.FactureRequestDTO;
 import com.example.suivi_projet.facturation.dto.FactureResponseDTO;
 import com.example.suivi_projet.facturation.entities.Facture;
@@ -30,21 +31,20 @@ public class FactureService {
     public FactureResponseDTO createFacture(Integer phaseId, FactureRequestDTO dto) {
 
         Phase phase = phaseRepository.findById(phaseId)
-                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Phase introuvable"));
 
         // ✅ règle 1 : phase terminée
         if (!phase.isEtatRealisation()) {
-            throw new RuntimeException("La phase doit être terminée");
+            throw new BusinessException("La phase doit être terminée");
         }
 
         // ✅ règle 2 : pas double facturation
         if (phase.isEtatFacturation()) {
-            throw new RuntimeException("Phase déjà facturée");
+            throw new BusinessException("Phase déjà facturée");
         }
 
         Facture facture = factureMapper.toEntity(dto, phase);
 
-        // mise à jour état phase
         phase.setEtatFacturation(true);
         phaseRepository.save(phase);
 
@@ -52,7 +52,6 @@ public class FactureService {
 
         return factureMapper.toDTO(saved);
     }
-
     public List<FactureResponseDTO> getAllFactures() {
 
         return factureRepository.findAll()
@@ -64,7 +63,7 @@ public class FactureService {
     public FactureResponseDTO getFactureById(Integer id) {
 
         Facture facture = factureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facture introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Facture introuvable avec id : " + id));
 
         return factureMapper.toDTO(facture);
     }
@@ -72,7 +71,7 @@ public class FactureService {
     public FactureResponseDTO updateFacture(Integer id, FactureRequestDTO dto) {
 
         Facture facture = factureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facture introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Facture introuvable avec id : " + id));
 
         factureMapper.updateEntityFromDTO(dto, facture);
 
@@ -84,7 +83,7 @@ public class FactureService {
     public void deleteFacture(Integer id) {
 
         Facture facture = factureRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Facture introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Facture introuvable avec id : " + id));
 
         Phase phase = facture.getPhase();
 
