@@ -1,40 +1,47 @@
 package com.example.suivi_projet.exceptions;
 
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import com.example.suivi_projet.exceptions.BusinessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.*;
 
-@RestControllerAdvice
+import java.util.HashMap;
+import java.util.Map;
+
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
+    // 404
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ProblemDetail handleResourceNotFound(ResourceNotFoundException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        problemDetail.setTitle("Ressource introuvable");
-        problemDetail.setDetail(ex.getMessage());
-        return problemDetail;
+    public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    // 400 métier
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<String> handleBusiness(BusinessException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    // Validation DTO (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidationException(MethodArgumentNotValidException ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("Erreur de validation");
-        problemDetail.setDetail(
-                ex.getBindingResult().getFieldError() != null
-                        ? ex.getBindingResult().getFieldError().getDefaultMessage()
-                        : "Données invalides"
-        );
-        return problemDetail;
+    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error ->
+                        errors.put(error.getField(), error.getDefaultMessage())
+                );
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    // Erreur globale
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGenericException(Exception ex) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        problemDetail.setTitle("Erreur interne du serveur");
-        problemDetail.setDetail(ex.getMessage());
-        return problemDetail;
+    public ResponseEntity<String> handleGlobal(Exception ex) {
+        return new ResponseEntity<>("Erreur serveur : " + ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
