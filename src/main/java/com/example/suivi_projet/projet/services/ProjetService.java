@@ -1,5 +1,7 @@
 package com.example.suivi_projet.projet.services;
 
+import com.example.suivi_projet.exceptions.BusinessException;
+import com.example.suivi_projet.exceptions.ResourceNotFoundException;
 import com.example.suivi_projet.projet.dto.ProjetRequestDTO;
 import com.example.suivi_projet.projet.dto.ProjetResponseDTO;
 import com.example.suivi_projet.projet.entities.Projet;
@@ -35,20 +37,24 @@ public class ProjetService {
     // CREATE
     public ProjetResponseDTO addProjet(ProjetRequestDTO dto) {
 
+        // règle métier
         if (dto.dateDebut().after(dto.dateFin())) {
-            throw new RuntimeException("Date invalide");
+            throw new BusinessException("La date de début doit être avant la date de fin");
         }
 
-        // ⚠️ adaptation repo (pas Optional)
         if (projetRepository.findByCode(dto.code()) != null) {
-            throw new RuntimeException("Code déjà existant");
+            throw new BusinessException("Le code projet existe déjà");
         }
 
         Organisme organisme = organismeRepository.findById(dto.organismeId())
-                .orElseThrow(() -> new RuntimeException("Organisme introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Organisme introuvable avec id : " + dto.organismeId())
+                );
 
         Employe chef = employeRepository.findById(dto.chefProjetId())
-                .orElseThrow(() -> new RuntimeException("Chef introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Chef de projet introuvable avec id : " + dto.chefProjetId())
+                );
 
         Projet projet = projetMapper.toEntity(dto, organisme, chef);
 
@@ -67,7 +73,9 @@ public class ProjetService {
     public ProjetResponseDTO getProjetById(int id) {
 
         Projet projet = projetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Projet introuvable avec id : " + id)
+                );
 
         return projetMapper.toResponseDTO(projet);
     }
@@ -76,17 +84,23 @@ public class ProjetService {
     public ProjetResponseDTO updateProjet(int id, ProjetRequestDTO dto) {
 
         Projet projet = projetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Projet introuvable avec id : " + id)
+                );
 
         if (dto.dateDebut().after(dto.dateFin())) {
-            throw new RuntimeException("Date invalide");
+            throw new BusinessException("La date de début doit être avant la date de fin");
         }
 
         Organisme organisme = organismeRepository.findById(dto.organismeId())
-                .orElseThrow(() -> new RuntimeException("Organisme introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Organisme introuvable avec id : " + dto.organismeId())
+                );
 
         Employe chef = employeRepository.findById(dto.chefProjetId())
-                .orElseThrow(() -> new RuntimeException("Chef introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Chef de projet introuvable avec id : " + dto.chefProjetId())
+                );
 
         projetMapper.updateEntityFromDTO(dto, projet, organisme, chef);
 
@@ -97,18 +111,20 @@ public class ProjetService {
     public void deleteProjet(int id) {
 
         Projet projet = projetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Projet introuvable avec id : " + id)
+                );
 
         projetRepository.delete(projet);
     }
 
-    // FIND BY CODE (adapté repo)
+    // FIND BY CODE
     public ProjetResponseDTO getByCode(String code) {
 
         Projet projet = projetRepository.findByCode(code);
 
         if (projet == null) {
-            throw new RuntimeException("Projet introuvable avec code : " + code);
+            throw new ResourceNotFoundException("Projet introuvable avec code : " + code);
         }
 
         return projetMapper.toResponseDTO(projet);

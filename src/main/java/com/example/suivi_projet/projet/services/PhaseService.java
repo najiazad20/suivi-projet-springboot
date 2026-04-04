@@ -1,5 +1,7 @@
 package com.example.suivi_projet.projet.services;
 
+import com.example.suivi_projet.exceptions.BusinessException;
+import com.example.suivi_projet.exceptions.ResourceNotFoundException;
 import com.example.suivi_projet.projet.dto.PhaseRequestDTO;
 import com.example.suivi_projet.projet.dto.PhaseResponseDTO;
 import com.example.suivi_projet.projet.entities.Phase;
@@ -30,20 +32,24 @@ public class PhaseService {
     public PhaseResponseDTO addPhase(int projetId, PhaseRequestDTO dto) {
 
         Projet projet = projetRepository.findById(projetId)
-                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Projet introuvable avec id : " + projetId)
+                );
 
+        // règle métier dates
         if (dto.dateDebut().before(projet.getDateDebut()) ||
                 dto.dateFin().after(projet.getDateFin())) {
-            throw new RuntimeException("Dates invalides");
+            throw new BusinessException("Les dates de la phase doivent être incluses dans celles du projet");
         }
 
+        // règle métier montant
         double somme = phaseRepository.findByProjetId(projetId)
                 .stream()
                 .mapToDouble(Phase::getMontant)
                 .sum();
 
         if (somme + dto.montant() > projet.getMontant()) {
-            throw new RuntimeException("Montant dépassé");
+            throw new BusinessException("Le montant total des phases dépasse celui du projet");
         }
 
         Phase phase = phaseMapper.toEntity(dto, projet);
@@ -53,6 +59,12 @@ public class PhaseService {
 
     // GET phases d'un projet
     public List<PhaseResponseDTO> getPhasesByProjet(int projetId) {
+
+        // optionnel mais propre (validation existence projet)
+        if (!projetRepository.existsById(projetId)) {
+            throw new ResourceNotFoundException("Projet introuvable avec id : " + projetId);
+        }
+
         return phaseRepository.findByProjetId(projetId)
                 .stream()
                 .map(phaseMapper::toResponseDTO)
@@ -61,8 +73,11 @@ public class PhaseService {
 
     // GET by id
     public PhaseResponseDTO getPhaseById(int id) {
+
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Phase introuvable avec id : " + id)
+                );
 
         return phaseMapper.toResponseDTO(phase);
     }
@@ -71,13 +86,27 @@ public class PhaseService {
     public PhaseResponseDTO updatePhase(int id, PhaseRequestDTO dto) {
 
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Phase introuvable avec id : " + id)
+                );
 
         Projet projet = phase.getProjet();
 
+        // règle dates
         if (dto.dateDebut().before(projet.getDateDebut()) ||
                 dto.dateFin().after(projet.getDateFin())) {
-            throw new RuntimeException("Dates invalides");
+            throw new BusinessException("Les dates de la phase doivent être incluses dans celles du projet");
+        }
+
+        // ⚠️ règle montant (important ajouté)
+        double somme = phaseRepository.findByProjetId(projet.getId())
+                .stream()
+                .filter(p -> p.getId() != id)
+                .mapToDouble(Phase::getMontant)
+                .sum();
+
+        if (somme + dto.montant() > projet.getMontant()) {
+            throw new BusinessException("Le montant total des phases dépasse celui du projet");
         }
 
         phaseMapper.updateEntityFromDTO(dto, phase);
@@ -87,16 +116,22 @@ public class PhaseService {
 
     // DELETE
     public void deletePhase(int id) {
+
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Phase introuvable avec id : " + id)
+                );
 
         phaseRepository.delete(phase);
     }
 
     // REALISATION
     public PhaseResponseDTO setRealisation(int id) {
+
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Phase introuvable avec id : " + id)
+                );
 
         phase.setEtatRealisation(true);
 
@@ -105,8 +140,11 @@ public class PhaseService {
 
     // FACTURATION
     public PhaseResponseDTO setFacturation(int id) {
+
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Phase introuvable avec id : " + id)
+                );
 
         phase.setEtatFacturation(true);
 
@@ -115,8 +153,11 @@ public class PhaseService {
 
     // PAIEMENT
     public PhaseResponseDTO setPaiement(int id) {
+
         Phase phase = phaseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Phase introuvable"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Phase introuvable avec id : " + id)
+                );
 
         phase.setEtatPaiement(true);
 
