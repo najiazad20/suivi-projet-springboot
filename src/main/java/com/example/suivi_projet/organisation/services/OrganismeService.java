@@ -5,6 +5,7 @@ import com.example.suivi_projet.organisation.dto.OrganismeResponseDTO;
 import com.example.suivi_projet.organisation.entities.Organisme;
 import com.example.suivi_projet.organisation.mappers.OrganismeMapper;
 import com.example.suivi_projet.organisation.repositories.OrganismeRepository;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public class OrganismeService {
     public OrganismeResponseDTO getOrganismeById(Integer id) {
 
         Organisme organisme = organismeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Organisme introuvable avec id : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable avec id : " + id));
 
         return organismeMapper.toDTO(organisme);
     }
@@ -48,7 +49,7 @@ public class OrganismeService {
     public OrganismeResponseDTO updateOrganisme(Integer id, OrganismeRequestDTO dto) {
 
         Organisme organisme = organismeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Organisme introuvable avec id : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable avec id : " + id));
 
         organismeMapper.updateEntityFromDTO(dto, organisme);
 
@@ -60,7 +61,7 @@ public class OrganismeService {
     public void deleteOrganisme(Integer id) {
 
         Organisme organisme = organismeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Organisme introuvable avec id : " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Organisme introuvable avec id : " + id));
 
         organismeRepository.delete(organisme);
     }

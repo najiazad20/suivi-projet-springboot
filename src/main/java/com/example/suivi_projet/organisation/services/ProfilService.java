@@ -5,6 +5,7 @@ import com.example.suivi_projet.organisation.dto.ProfilResponseDTO;
 import com.example.suivi_projet.organisation.entities.Profil;
 import com.example.suivi_projet.organisation.mappers.ProfilMapper;
 import com.example.suivi_projet.organisation.repositories.ProfilRepository;
+import com.example.suivi_projet.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class ProfilService {
     public ProfilResponseDTO findById(int id) {
 
         Profil profil = profilRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Profil introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profil introuvable"));
 
         return mapper.toDTO(profil);
     }
@@ -50,7 +51,7 @@ public class ProfilService {
     public ProfilResponseDTO update(int id, ProfilRequestDTO dto) {
 
         Profil profil = profilRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Profil introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profil introuvable"));
 
         mapper.updateEntity(profil, dto);
 
@@ -61,18 +62,18 @@ public class ProfilService {
     public void delete(int id) {
 
         Profil profil = profilRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Profil introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profil introuvable"));
 
         profilRepository.delete(profil);
     }
 
-    // FIND BY CODE 
+    // FIND BY CODE
     public ProfilResponseDTO findByCode(String code) {
 
         Profil profil = profilRepository.findByCode(code);
 
         if (profil == null) {
-            throw new RuntimeException("Profil introuvable");
+            throw new ResourceNotFoundException("Profil introuvable");
         }
 
         return mapper.toDTO(profil);

@@ -4,6 +4,8 @@ import com.example.suivi_projet.organisation.dto.*;
 import com.example.suivi_projet.organisation.entities.*;
 import com.example.suivi_projet.organisation.mappers.EmployeMapper;
 import com.example.suivi_projet.organisation.repositories.*;
+import com.example.suivi_projet.exceptions.BusinessException;
+import com.example.suivi_projet.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,13 +30,13 @@ public class EmployeService {
     public EmployeResponseDTO save(EmployeRequestDTO dto) {
 
         if (employeRepository.findByMatricule(dto.matricule()) != null)
-            throw new RuntimeException("Matricule déjà utilisé");
+            throw new BusinessException("Matricule déjà utilisé");
 
         if (employeRepository.findByLogin(dto.login()) != null)
-            throw new RuntimeException("Login déjà utilisé");
+            throw new BusinessException("Login déjà utilisé");
 
         Profil profil = profilRepository.findById(dto.profilId())
-                .orElseThrow(() -> new RuntimeException("Profil introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profil introuvable"));
 
         Employe e = mapper.toEntity(dto, profil);
 
@@ -55,7 +57,7 @@ public class EmployeService {
     public EmployeResponseDTO findById(int id) {
 
         Employe e = employeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employe introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
 
         return mapper.toDTO(e);
     }
@@ -64,10 +66,10 @@ public class EmployeService {
     public EmployeResponseDTO update(int id, EmployeRequestDTO dto) {
 
         Employe e = employeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employe introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
 
         Profil profil = profilRepository.findById(dto.profilId())
-                .orElseThrow(() -> new RuntimeException("Profil introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profil introuvable"));
 
         mapper.update(dto, e, profil);
 
@@ -78,7 +80,7 @@ public class EmployeService {
     public void delete(int id) {
 
         Employe e = employeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employe introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Employé introuvable"));
 
         employeRepository.delete(e);
     }
