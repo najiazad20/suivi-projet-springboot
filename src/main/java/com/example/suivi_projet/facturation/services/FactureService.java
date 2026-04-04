@@ -33,12 +33,12 @@ public class FactureService {
         Phase phase = phaseRepository.findById(phaseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Phase introuvable"));
 
-        // ✅ règle 1 : phase terminée
+        //  règle 1 : phase terminée
         if (!phase.isEtatRealisation()) {
             throw new BusinessException("La phase doit être terminée");
         }
 
-        // ✅ règle 2 : pas double facturation
+        //  règle 2 : pas double facturation
         if (phase.isEtatFacturation()) {
             throw new BusinessException("Phase déjà facturée");
         }
@@ -100,7 +100,7 @@ public class FactureService {
                 .map(factureMapper::toDTO)
                 .toList();
     }
-    // 🔥 recherche comptable
+    //  recherche comptable
     public List<FactureResponseDTO> getFacturesByDate(java.util.Date date) {
 
         return factureRepository.findByDateFacture(date)
