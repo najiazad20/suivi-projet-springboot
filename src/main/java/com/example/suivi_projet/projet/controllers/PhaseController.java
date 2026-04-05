@@ -20,6 +20,13 @@ public class PhaseController {
         this.phaseService = phaseService;
     }
 
+
+
+    // GET phases projet
+    @GetMapping("/projets/{projetId}/phases")
+    public List<PhaseResponseDTO> getPhases(@PathVariable int projetId) {
+        return phaseService.getPhasesByProjet(projetId);
+    }
     // CREATE
     @PostMapping("/projets/{projetId}/phases")
     @ResponseStatus(HttpStatus.CREATED)
@@ -27,13 +34,6 @@ public class PhaseController {
                                      @Valid @RequestBody PhaseRequestDTO dto) {
         return phaseService.addPhase(projetId, dto);
     }
-
-    // GET phases projet
-    @GetMapping("/projets/{projetId}/phases")
-    public List<PhaseResponseDTO> getPhases(@PathVariable int projetId) {
-        return phaseService.getPhasesByProjet(projetId);
-    }
-
     // GET by id
     @GetMapping("/phases/{id}")
     public PhaseResponseDTO getPhase(@PathVariable int id) {
