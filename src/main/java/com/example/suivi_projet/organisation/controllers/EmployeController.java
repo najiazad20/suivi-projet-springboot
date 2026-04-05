@@ -3,11 +3,12 @@ package com.example.suivi_projet.organisation.controllers;
 import com.example.suivi_projet.organisation.dto.*;
 import com.example.suivi_projet.organisation.services.EmployeService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-
+@PreAuthorize("hasRole('ADMIN')")
 @RestController
 @RequestMapping("/api/employes")
 public class EmployeController {
