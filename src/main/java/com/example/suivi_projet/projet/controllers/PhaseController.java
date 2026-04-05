@@ -5,10 +5,11 @@ import com.example.suivi_projet.projet.dto.PhaseRequestDTO;
 import com.example.suivi_projet.projet.dto.PhaseResponseDTO;
 import com.example.suivi_projet.projet.services.PhaseService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@PreAuthorize("hasRole('CHEF_PROJET')")
 @RestController
 @RequestMapping("/api")
 public class PhaseController {

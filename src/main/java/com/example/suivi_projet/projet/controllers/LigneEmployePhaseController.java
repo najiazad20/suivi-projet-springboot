@@ -4,10 +4,11 @@ import jakarta.validation.Valid;
 import com.example.suivi_projet.projet.dto.*;
 import com.example.suivi_projet.projet.services.LigneEmployePhaseService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@PreAuthorize("hasRole('CHEF_PROJET')")
 @RestController
 @RequestMapping("/api")
 public class LigneEmployePhaseController {
