@@ -14,5 +14,6 @@ public record PhaseRequestDTO(
 
         @Positive double montant
 
-) {
+)
+{
 }

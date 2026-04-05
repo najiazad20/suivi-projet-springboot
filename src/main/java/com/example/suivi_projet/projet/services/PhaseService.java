@@ -60,7 +60,7 @@ public class PhaseService {
     // GET phases d'un projet
     public List<PhaseResponseDTO> getPhasesByProjet(int projetId) {
 
-        // optionnel mais propre (validation existence projet)
+
         if (!projetRepository.existsById(projetId)) {
             throw new ResourceNotFoundException("Projet introuvable avec id : " + projetId);
         }
@@ -92,13 +92,13 @@ public class PhaseService {
 
         Projet projet = phase.getProjet();
 
-        // règle dates
+
         if (dto.dateDebut().before(projet.getDateDebut()) ||
                 dto.dateFin().after(projet.getDateFin())) {
             throw new BusinessException("Les dates de la phase doivent être incluses dans celles du projet");
         }
 
-        // ⚠️ règle montant (important ajouté)
+
         double somme = phaseRepository.findByProjetId(projet.getId())
                 .stream()
                 .filter(p -> p.getId() != id)
@@ -164,7 +164,7 @@ public class PhaseService {
         return phaseMapper.toResponseDTO(phaseRepository.save(phase));
     }
 
-    // REPORTING 1
+
     public List<PhaseResponseDTO> getTermineesNonFacturees() {
         return phaseRepository.findByEtatRealisationTrueAndEtatFacturationFalse()
                 .stream()
@@ -172,7 +172,7 @@ public class PhaseService {
                 .toList();
     }
 
-    // REPORTING 2
+
     public List<PhaseResponseDTO> getFactureesNonPayees() {
         return phaseRepository.findByEtatFacturationTrueAndEtatPaiementFalse()
                 .stream()

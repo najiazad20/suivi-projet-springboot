@@ -37,7 +37,7 @@ public class ProjetService {
 
     public ProjetResponseDTO addProjet(ProjetRequestDTO dto) {
 
-        // règle métier
+
         if (dto.dateDebut().after(dto.dateFin())) {
             throw new BusinessException("La date de début doit être avant la date de fin");
         }
