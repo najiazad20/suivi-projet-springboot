@@ -55,7 +55,10 @@ public class DocumentController {
                 ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
+    @GetMapping("/documents/search")
+    public ResponseEntity<List<DocumentResponseDTO>> findByLibelle(@RequestParam String libelle) {
+        return new ResponseEntity<>(documentService.findByLibelle(libelle), HttpStatus.OK);
+    }
     @GetMapping("/documents/{id}/download")
     public ResponseEntity<String> download(@PathVariable int id) {
         return ResponseEntity.of(
@@ -64,8 +67,5 @@ public class DocumentController {
         );
     }
 
-    @GetMapping("/documents/search")
-    public ResponseEntity<List<DocumentResponseDTO>> findByLibelle(@RequestParam String libelle) {
-        return new ResponseEntity<>(documentService.findByLibelle(libelle), HttpStatus.OK);
-    }
+
 }

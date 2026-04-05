@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Employe employe = employeRepository.findByLogin(username);
 
         if (employe == null) {
-            throw new ResourceNotFoundException("Utilisateur introuvable avec login : " + username);
+            throw new ResourceNotFoundException("Utilisateur introuvable avec  login : " + username);
         }
 
         return new User(
