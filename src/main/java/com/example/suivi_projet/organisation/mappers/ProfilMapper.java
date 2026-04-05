@@ -32,4 +32,5 @@ public class ProfilMapper {
         profil.setCode(dto.code());
         profil.setLibelle(dto.libelle());
     }
+
 }

@@ -33,12 +33,12 @@ public class FactureService {
         Phase phase = phaseRepository.findById(phaseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Phase introuvable"));
 
-        //  règle 1 : phase terminée
+        //   phase terminée
         if (!phase.isEtatRealisation()) {
             throw new BusinessException("La phase doit être terminée");
         }
 
-        //  règle 2 : pas double facturation
+        //   pas double facturation
         if (phase.isEtatFacturation()) {
             throw new BusinessException("Phase déjà facturée");
         }

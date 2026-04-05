@@ -48,7 +48,7 @@ public class OrganismeController {
         organismeService.deleteOrganisme(id);
     }
 
-    // 🔥 recherche
+    //  recherche
     @GetMapping("/search")
     public List<OrganismeResponseDTO> search(
             @RequestParam(required = false) String nom,

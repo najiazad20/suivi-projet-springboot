@@ -54,13 +54,13 @@ public class AuthController {
         );
     }
 
-    // UTILISATEUR CONNECTÉ
+    // UTILISATEUR  CONNECTÉ
     @GetMapping("/me")
     public Object me() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    // CHANGE PASSWORD
+    // CHANGE  PASSWORD
     @PostMapping("/change-password")
     public String changePassword(@RequestBody ChangePasswordDTO dto) {
 
