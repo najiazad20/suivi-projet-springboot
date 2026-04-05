@@ -7,23 +7,26 @@ import com.example.suivi_projet.organisation.repositories.*;
 import com.example.suivi_projet.exceptions.BusinessException;
 import com.example.suivi_projet.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.suivi_projet.security.dto.*;
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
 public class EmployeService {
-
+    private final PasswordEncoder passwordEncoder;
     private final EmployeRepository employeRepository;
     private final ProfilRepository profilRepository;
     private final EmployeMapper mapper;
 
     public EmployeService(EmployeRepository employeRepository,
                           ProfilRepository profilRepository,
-                          EmployeMapper mapper) {
+                          EmployeMapper mapper,
+                                     PasswordEncoder passwordEncoder) {
         this.employeRepository = employeRepository;
         this.profilRepository = profilRepository;
         this.mapper = mapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // CREATE
@@ -39,7 +42,7 @@ public class EmployeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Profil introuvable"));
 
         Employe e = mapper.toEntity(dto, profil);
-
+        e.setPassword(passwordEncoder.encode(dto.password()));
         return mapper.toDTO(employeRepository.save(e));
     }
 

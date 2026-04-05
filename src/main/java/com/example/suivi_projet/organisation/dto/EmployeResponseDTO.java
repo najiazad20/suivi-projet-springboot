@@ -8,5 +8,6 @@ public record EmployeResponseDTO(
         String telephone,
         String email,
         String login,
+        String password,
         String profilNom
 ) {}

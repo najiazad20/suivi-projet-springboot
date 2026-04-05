@@ -33,7 +33,8 @@ public class EmployeMapper {
                 e.getTelephone(),
                 e.getEmail(),
                 e.getLogin(),
-                e.getProfil().getLibelle()
+                e.getProfil().getLibelle(),
+                e.getPassword()
         );
     }
 
