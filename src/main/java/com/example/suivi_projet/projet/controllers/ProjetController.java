@@ -5,10 +5,11 @@ import com.example.suivi_projet.projet.dto.ProjetRequestDTO;
 import com.example.suivi_projet.projet.dto.ProjetResponseDTO;
 import com.example.suivi_projet.projet.services.ProjetService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@PreAuthorize("hasAnyRole('SECRETAIRE','DIRECTEUR')")
 @RestController
 @RequestMapping("/api/projets")
 public class ProjetController {
