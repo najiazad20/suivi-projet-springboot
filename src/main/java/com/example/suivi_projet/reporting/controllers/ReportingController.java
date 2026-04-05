@@ -15,16 +15,16 @@ public class ReportingController {
     public ReportingController(ReportingService reportingService) {
         this.reportingService = reportingService;
     }
-    @GetMapping("/phases/facturees-non-payees")
-    public List<PhaseReportingDTO> getPhasesFactureesNonPayees() {
-        return reportingService.getPhasesFactureesNonPayees();
-    }
+
     @GetMapping("/phases/terminees-non-facturees")
     public List<PhaseReportingDTO> getPhasesTermineesNonFacturees() {
         return reportingService.getPhasesTermineesNonFacturees();
     }
 
-
+    @GetMapping("/phases/facturees-non-payees")
+    public List<PhaseReportingDTO> getPhasesFactureesNonPayees() {
+        return reportingService.getPhasesFactureesNonPayees();
+    }
     @GetMapping("/phases/payees")
     public List<PhaseReportingDTO> getPhasesPayees() {
         return reportingService.getPhasesPayees();

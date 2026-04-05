@@ -5,11 +5,12 @@ import com.example.suivi_projet.facturation.dto.FactureRequestDTO;
 import com.example.suivi_projet.facturation.dto.FactureResponseDTO;
 import com.example.suivi_projet.facturation.services.FactureService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-
+@PreAuthorize("hasRole('COMPTABLE')")
 @RestController
 @RequestMapping("/api")
 public class FactureController {

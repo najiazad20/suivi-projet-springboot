@@ -59,7 +59,7 @@ public class ReportingService {
                 .toList();
     }
 
-    // Dashboard simple
+    // Dashboard
     public String getDashboard() {
         long totalPhases = phaseRepository.count();
         long phasesFacturees = phaseRepository.findByEtatFacturationTrueAndEtatPaiementFalse().size();
