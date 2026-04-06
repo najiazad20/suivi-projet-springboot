@@ -1,7 +1,5 @@
 package com.example.suivi_projet.security.controllers;
 
-
-
 import com.example.suivi_projet.security.dto.*;
 import com.example.suivi_projet.security.jwt.JwtUtil;
 import com.example.suivi_projet.organisation.entities.Employe;
@@ -54,7 +52,7 @@ public class AuthController {
         );
     }
 
-    // UTILISATEUR  CONNECTÉ
+    // UTILISATEUR  CONNECTE
     @GetMapping("/me")
     public Object me() {
         return SecurityContextHolder.getContext().getAuthentication();

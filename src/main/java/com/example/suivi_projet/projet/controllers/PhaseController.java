@@ -20,7 +20,7 @@ public class PhaseController {
         this.phaseService = phaseService;
     }
 
-    // CREATE
+
     @PostMapping("/projets/{projetId}/phases")
     @ResponseStatus(HttpStatus.CREATED)
     public PhaseResponseDTO addPhase(@PathVariable int projetId,
@@ -28,51 +28,51 @@ public class PhaseController {
         return phaseService.addPhase(projetId, dto);
     }
 
-    // GET phases projet
+
     @GetMapping("/projets/{projetId}/phases")
     public List<PhaseResponseDTO> getPhases(@PathVariable int projetId) {
         return phaseService.getPhasesByProjet(projetId);
     }
 
-    // GET by id
+
     @GetMapping("/phases/{id}")
     public PhaseResponseDTO getPhase(@PathVariable int id) {
         return phaseService.getPhaseById(id);
     }
 
-    // UPDATE
+
     @PutMapping("/phases/{id}")
     public PhaseResponseDTO updatePhase(@PathVariable int id,
                                         @Valid @RequestBody PhaseRequestDTO dto) {
         return phaseService.updatePhase(id, dto);
     }
 
-    // DELETE
+
     @DeleteMapping("/phases/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePhase(@PathVariable int id) {
         phaseService.deletePhase(id);
     }
 
-    // REALISATION
+
     @PatchMapping("/phases/{id}/realisation")
     public PhaseResponseDTO realisation(@PathVariable int id) {
         return phaseService.setRealisation(id);
     }
 
-    // FACTURATION
+
     @PatchMapping("/phases/{id}/facturation")
     public PhaseResponseDTO facturation(@PathVariable int id) {
         return phaseService.setFacturation(id);
     }
 
-    // PAIEMENT
+
     @PatchMapping("/phases/{id}/paiement")
     public PhaseResponseDTO paiement(@PathVariable int id) {
         return phaseService.setPaiement(id);
     }
 
-    // REPORTING
+
     @GetMapping("/phases/terminees-non-facturees")
     public List<PhaseResponseDTO> termineesNonFacturees() {
         return phaseService.getTermineesNonFacturees();
