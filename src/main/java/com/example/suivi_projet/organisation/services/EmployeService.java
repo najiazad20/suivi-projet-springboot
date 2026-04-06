@@ -36,13 +36,14 @@ public class EmployeService {
         if (employeRepository.findByMatricule(dto.matricule()) != null)
             throw new BusinessException("Matricule déjà utilisé");
 
-        if (employeRepository.findByLogin(dto.login()) != null)
+        if (employeRepository.findByLogin(dto.login()).isPresent())
             throw new BusinessException("Login déjà utilisé");
 
         Profil profil = profilRepository.findById(dto.profilId())
                 .orElseThrow(() -> new ResourceNotFoundException("Profil introuvable"));
 
         Employe e = mapper.toEntity(dto, profil);
+        e.setProfil(profil);
         e.setPassword(passwordEncoder.encode(dto.password()));
         return mapper.toDTO(employeRepository.save(e));
     }

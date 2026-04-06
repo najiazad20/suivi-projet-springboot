@@ -24,7 +24,7 @@ public record EmployeRequestDTO(
         String login,
 
         @NotBlank
-        String password,
+        String  password,
 
         int profilId
 ) {}

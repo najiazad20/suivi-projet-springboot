@@ -9,5 +9,5 @@ public record EmployeResponseDTO(
         String email,
         String login,
         String password,
-        String profilId
+        int profilId
 ) {}

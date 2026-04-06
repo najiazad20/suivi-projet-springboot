@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-@PreAuthorize("hasAnyRole('SECRETAIRE', 'ADMINISTRATEUR')")
+@PreAuthorize("hasAnyRole('SECRETAIRE')")
 @RestController
 @RequestMapping("/api/organismes")
 public class OrganismeController {

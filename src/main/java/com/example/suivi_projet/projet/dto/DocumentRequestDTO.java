@@ -16,7 +16,7 @@ public record DocumentRequestDTO(
         String chemin,
 
         @NotNull(message = "Le projet est obligatoire")
-        Integer projetId
+        int projetId
 
 ) {
 }

@@ -11,7 +11,7 @@ public record ProjetResponseDTO(
         Date dateDebut,
         Date dateFin,
         double montant,
-        String organismeNom,
+        String organismeId,
         String chefProjetNom
 
 ) {
