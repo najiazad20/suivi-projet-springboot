@@ -42,14 +42,7 @@ public class LigneEmployePhaseController {
         return service.get(phaseId, employeId);
     }
 
-    @PutMapping("/phases/{phaseId}/employes/{employeId}")
-    public LigneEmployePhaseResponseDTO update(
-            @PathVariable int phaseId,
-            @PathVariable int employeId,
-            @Valid @RequestBody LigneEmployePhaseRequestDTO dto) {
 
-        return service.update(phaseId, employeId, dto);
-    }
 
     @DeleteMapping("/phases/{phaseId}/employes/{employeId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -59,7 +52,14 @@ public class LigneEmployePhaseController {
 
         service.delete(phaseId, employeId);
     }
+    @PutMapping("/phases/{phaseId}/employes/{employeId}")
+    public LigneEmployePhaseResponseDTO update(
+            @PathVariable int phaseId,
+            @PathVariable int employeId,
+            @Valid @RequestBody LigneEmployePhaseRequestDTO dto) {
 
+        return service.update(phaseId, employeId, dto);
+    }
     @GetMapping("/employes/{employeId}/phases")
     public List<LigneEmployePhaseResponseDTO> getPhases(@PathVariable int employeId) {
         return service.getPhasesByEmploye(employeId);

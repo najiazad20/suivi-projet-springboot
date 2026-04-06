@@ -19,6 +19,14 @@ public class LivrableController {
         this.livrableService = livrableService;
     }
 
+
+
+    // GET /api/phases/{phaseId}/livrables
+    @GetMapping("/phases/{phaseId}/livrables")
+    public List<LivrableResponseDTO> getByPhase(@PathVariable int phaseId) {
+        return livrableService.getLivrablesByPhase(phaseId);
+    }
+
     // POST /api/phases/{phaseId}/livrables
     @PostMapping("/phases/{phaseId}/livrables")
     @ResponseStatus(HttpStatus.CREATED)
@@ -29,11 +37,7 @@ public class LivrableController {
         return livrableService.createLivrable(phaseId, dto);
     }
 
-    // GET /api/phases/{phaseId}/livrables
-    @GetMapping("/phases/{phaseId}/livrables")
-    public List<LivrableResponseDTO> getByPhase(@PathVariable int phaseId) {
-        return livrableService.getLivrablesByPhase(phaseId);
-    }
+
 
     // GET /api/livrables/{id}
     @GetMapping("/livrables/{id}")
