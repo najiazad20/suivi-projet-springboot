@@ -21,7 +21,6 @@ public class ProfilService {
         this.mapper = mapper;
     }
 
-    // CREATE
     public ProfilResponseDTO save(ProfilRequestDTO dto) {
 
         Profil profil = mapper.toEntity(dto);
@@ -29,14 +28,6 @@ public class ProfilService {
         return mapper.toDTO(profilRepository.save(profil));
     }
 
-    // GET ALL
-    public List<ProfilResponseDTO> findAll() {
-
-        return profilRepository.findAll()
-                .stream()
-                .map(mapper::toDTO)
-                .toList();
-    }
 
     // GET BY ID
     public ProfilResponseDTO findById(int id) {
@@ -45,6 +36,14 @@ public class ProfilService {
                 .orElseThrow(() -> new ResourceNotFoundException("Profil introuvable"));
 
         return mapper.toDTO(profil);
+    }
+    // GET ALL
+    public List<ProfilResponseDTO> findAll() {
+
+        return profilRepository.findAll()
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
     // UPDATE
