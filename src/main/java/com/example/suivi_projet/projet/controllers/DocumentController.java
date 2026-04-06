@@ -4,12 +4,23 @@ import com.example.suivi_projet.projet.dto.DocumentRequestDTO;
 import com.example.suivi_projet.projet.dto.DocumentResponseDTO;
 import com.example.suivi_projet.projet.services.DocumentService;
 
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -18,7 +29,7 @@ public class DocumentController {
 
     @Autowired
     private DocumentService documentService;
-
+    @PreAuthorize("hasAnyRole('CHEF_PROJET', 'DIRECTEUR', 'SECRETAIRE')")
     @PostMapping("/projets/{projetId}/documents")
     public ResponseEntity<DocumentResponseDTO> save(
             @PathVariable int projetId,
@@ -60,12 +71,24 @@ public class DocumentController {
         return new ResponseEntity<>(documentService.findByLibelle(libelle), HttpStatus.OK);
     }
     @GetMapping("/documents/{id}/download")
-    public ResponseEntity<String> download(@PathVariable int id) {
-        return ResponseEntity.of(
-                java.util.Optional.ofNullable(documentService.findById(id))
-                        .map(DocumentResponseDTO::chemin)
-        );
-    }
+    public ResponseEntity<org.springframework.core.io.Resource> downloadFile(@PathVariable int id) {
+        DocumentResponseDTO doc = documentService.findById(id);
 
+        try {
+
+            java.nio.file.Path path = java.nio.file.Paths.get(doc.chemin());
+            org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(path.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (java.net.MalformedURLException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 
 }

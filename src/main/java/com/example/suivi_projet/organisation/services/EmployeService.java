@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.suivi_projet.security.dto.*;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -88,10 +89,12 @@ public class EmployeService {
         employeRepository.delete(e);
     }
 
-    // DISPONIBILITÉ
     public List<EmployeResponseDTO> getDisponibles(LocalDate d1, LocalDate d2) {
+        // Conversion LocalDate vers Date pour le repository
+        Date dateDebut = java.sql.Date.valueOf(d1);
+        Date dateFin = java.sql.Date.valueOf(d2);
 
-        return employeRepository.findAll()
+        return employeRepository.findAvailableEmployes(dateDebut, dateFin)
                 .stream()
                 .map(mapper::toDTO)
                 .toList();

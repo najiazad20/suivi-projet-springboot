@@ -6,10 +6,11 @@ import com.example.suivi_projet.organisation.services.OrganismeService;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@PreAuthorize("hasAnyRole('SECRETAIRE', 'ADMINISTRATEUR')")
 @RestController
 @RequestMapping("/api/organismes")
 public class OrganismeController {

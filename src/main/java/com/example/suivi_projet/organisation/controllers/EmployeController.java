@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-@PreAuthorize("hasRole('ADMIN')")
+
 @RestController
 @RequestMapping("/api/employes")
+@CrossOrigin("*")
 public class EmployeController {
 
     private final EmployeService service;
@@ -18,12 +19,12 @@ public class EmployeController {
     public EmployeController(EmployeService service) {
         this.service = service;
     }
-
+    @PreAuthorize("hasRole('ADMINISTRATEUR')")
     @PostMapping
     public EmployeResponseDTO save(@Valid @RequestBody EmployeRequestDTO dto) {
         return service.save(dto);
     }
-
+    @PreAuthorize("hasAnyRole('ADMINISTRATEUR', 'DIRECTEUR', 'CHEF_PROJET')")
     @GetMapping
     public List<EmployeResponseDTO> findAll(@RequestParam(required = false) String nom) {
         return service.findAll(nom);

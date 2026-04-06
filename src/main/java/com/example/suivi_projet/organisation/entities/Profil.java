@@ -15,8 +15,9 @@ public class Profil {
     public Profil() {
     }
 
-    public Profil( String code, String libelle) {
+    public Profil(  String code, String libelle) {
         this.code = code;
+
         this.libelle = libelle;
     }
 

@@ -4,8 +4,11 @@ import com.example.suivi_projet.exceptions.BusinessException;
 import com.example.suivi_projet.exceptions.ResourceNotFoundException;
 import com.example.suivi_projet.projet.dto.ProjetRequestDTO;
 import com.example.suivi_projet.projet.dto.ProjetResponseDTO;
+import com.example.suivi_projet.projet.dto.ProjetSummaryDTO;
+import com.example.suivi_projet.projet.entities.Phase;
 import com.example.suivi_projet.projet.entities.Projet;
 import com.example.suivi_projet.projet.mappers.ProjetMapper;
+import com.example.suivi_projet.projet.repositories.PhaseRepository;
 import com.example.suivi_projet.projet.repositories.ProjetRepository;
 import com.example.suivi_projet.organisation.entities.Employe;
 import com.example.suivi_projet.organisation.entities.Organisme;
@@ -22,15 +25,17 @@ public class ProjetService {
     private final OrganismeRepository organismeRepository;
     private final EmployeRepository employeRepository;
     private final ProjetMapper projetMapper;
-
+    private final PhaseRepository phaseRepository;
     public ProjetService(ProjetRepository projetRepository,
                          OrganismeRepository organismeRepository,
                          EmployeRepository employeRepository,
+                         PhaseRepository phaseRepository,
                          ProjetMapper projetMapper) {
 
         this.projetRepository = projetRepository;
         this.organismeRepository = organismeRepository;
         this.employeRepository = employeRepository;
+        this.phaseRepository = phaseRepository;
         this.projetMapper = projetMapper;
     }
 
@@ -136,5 +141,51 @@ public class ProjetService {
                 .stream()
                 .map(projetMapper::toResponseDTO)
                 .toList();
+    }
+    public ProjetSummaryDTO getProjetSummary(int id) {
+        Projet projet = projetRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Projet introuvable"));
+
+        List<Phase> phases = phaseRepository.findByProjetId(id);
+
+        long terminees = phases.stream().filter(Phase::isEtatRealisation).count();
+
+        double facture = phases.stream()
+                .filter(Phase::isEtatFacturation)
+                .mapToDouble(Phase::getMontant)
+                .sum();
+
+        double progression = phases.isEmpty() ? 0 : (double) terminees / phases.size() * 100;
+
+        return new ProjetSummaryDTO(
+                projet.getNom(),
+                projet.getChefProjet().getNom(),
+                projet.getMontant(),
+                phases.size(),
+                facture,      // La virgule ici est correcte car il y a un élément après
+                progression   // <--- SUPPRIME LA VIRGULE ICI
+        );
+    }
+    public ProjetResponseDTO updateMontant(int id, double nouveauMontant) {
+        // Recherche du projet par ID
+        Projet projet = projetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Projet introuvable avec l'id : " + id));
+
+        // Utilisation de votre setter actuel 'setMontant'
+        projet.setMontant(nouveauMontant);
+
+        // Sauvegarde et retour du DTO
+        Projet saved = projetRepository.save(projet);
+        return projetMapper.toResponseDTO(saved);
+    }
+    public ProjetResponseDTO affecterChef(int id, int chefId) {
+        Projet projet = projetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Projet introuvable"));
+
+        Employe chef = employeRepository.findById(chefId)
+                .orElseThrow(() -> new RuntimeException("Chef de projet introuvable"));
+
+        projet.setChefProjet(chef);
+        return projetMapper.toResponseDTO(projet);
     }
 }

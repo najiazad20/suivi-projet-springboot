@@ -28,6 +28,7 @@ public class PhaseController {
         return phaseService.getPhasesByProjet(projetId);
     }
     // CREATE
+    @PreAuthorize("hasRole('CHEF_PROJET')")
     @PostMapping("/projets/{projetId}/phases")
     @ResponseStatus(HttpStatus.CREATED)
     public PhaseResponseDTO addPhase(@PathVariable int projetId,
@@ -55,18 +56,21 @@ public class PhaseController {
     }
 
     // REALISATION
+    @PreAuthorize("hasRole('CHEF_PROJET')")
     @PatchMapping("/phases/{id}/realisation")
     public PhaseResponseDTO realisation(@PathVariable int id) {
         return phaseService.setRealisation(id);
     }
 
     // FACTURATION
+    @PreAuthorize("hasRole('COMPTABLE')")
     @PatchMapping("/phases/{id}/facturation")
     public PhaseResponseDTO facturation(@PathVariable int id) {
         return phaseService.setFacturation(id);
     }
 
     // PAIEMENT
+    @PreAuthorize("hasRole('COMPTABLE')")
     @PatchMapping("/phases/{id}/paiement")
     public PhaseResponseDTO paiement(@PathVariable int id) {
         return phaseService.setPaiement(id);
