@@ -23,13 +23,13 @@ public class LivrableController {
 
 
 
-    // GET /api/phases/{phaseId}/livrables
+
     @GetMapping("/phases/{phaseId}/livrables")
     public List<LivrableResponseDTO> getByPhase(@PathVariable int phaseId) {
         return livrableService.getLivrablesByPhase(phaseId);
     }
 
-    // POST /api/phases/{phaseId}/livrables
+
     @PostMapping("/phases/{phaseId}/livrables")
     @ResponseStatus(HttpStatus.CREATED)
     public LivrableResponseDTO createLivrable(
@@ -41,13 +41,13 @@ public class LivrableController {
 
 
 
-    // GET /api/livrables/{id}
+
     @GetMapping("/livrables/{id}")
     public LivrableResponseDTO getById(@PathVariable int id) {
         return livrableService.getLivrableById(id);
     }
 
-    // PUT /api/livrables/{id}
+
     @PutMapping("/livrables/{id}")
     public LivrableResponseDTO update(
             @PathVariable int id,
@@ -56,7 +56,7 @@ public class LivrableController {
         return livrableService.updateLivrable(id, dto);
     }
 
-    // DELETE /api/livrables/{id}
+
     @DeleteMapping("/livrables/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {
