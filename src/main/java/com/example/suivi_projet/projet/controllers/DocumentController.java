@@ -22,14 +22,13 @@ import jakarta.validation.Valid;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.util.List;
-
+@PreAuthorize("hasAnyRole('CHEF_PROJET', 'DIRECTEUR', 'SECRETAIRE')")
 @RestController
 @RequestMapping("/api")
 public class DocumentController {
 
     @Autowired
     private DocumentService documentService;
-    @PreAuthorize("hasAnyRole('CHEF_PROJET', 'DIRECTEUR', 'SECRETAIRE')")
     @PostMapping("/projets/{projetId}/documents")
     public ResponseEntity<DocumentResponseDTO> save(
             @PathVariable int projetId,

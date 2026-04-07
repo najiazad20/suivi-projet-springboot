@@ -54,12 +54,13 @@ public class SecurityConfig {
                         // Création : Secrétaire uniquement (ou Directeur)
                         .requestMatchers(HttpMethod.POST, "/api/projets").hasAnyRole("SECRETAIRE", "DIRECTEUR")
                         // Modification administrative : Secrétaire & Directeur
-                        .requestMatchers(HttpMethod.PUT, "/api/projets/*").hasAnyRole("SECRETAIRE", "DIRECTEUR")
+                        .requestMatchers(HttpMethod.PUT, "/api/projets/*").hasAnyRole("DIRECTEUR")
                         // Modification financière (Montant) & Affectation Chef : Directeur uniquement
                         .requestMatchers(HttpMethod.PATCH, "/api/projets/*/montant").hasRole("DIRECTEUR")
                         .requestMatchers(HttpMethod.PATCH, "/api/projets/*/affecter-chef").hasRole("DIRECTEUR")
                         // Recherche & Consultation : Tout le monde authentifié
-                        .requestMatchers(HttpMethod.GET, "/api/projets/**").authenticated()
+                        .requestMatchers("/api/projets/**").hasRole("DIRECTEUR")
+                        .requestMatchers(HttpMethod.GET, "/api/projets/**").hasAnyRole("SECRETAIRE")
 
                         // 3. ORGANISMES (UC1)
                         .requestMatchers("/api/organismes/**").hasAnyRole("SECRETAIRE")
@@ -69,6 +70,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/projets/*/phases").hasRole("CHEF_PROJET")
                         .requestMatchers(HttpMethod.PATCH, "/api/phases/*/realisation").hasRole("CHEF_PROJET")
                         .requestMatchers("/api/phases/*/employes/**").hasRole("CHEF_PROJET")
+                        .requestMatchers("/api/phases/*/employes").hasRole("CHEF_PROJET")
+                        .requestMatchers(HttpMethod.PATCH, "/api/employes/disponibles").hasRole("CHEF_PROJET")
                         // Finance (Comptable)
                         .requestMatchers(HttpMethod.PATCH, "/api/phases/*/facturation").hasRole("COMPTABLE")
                         .requestMatchers(HttpMethod.PATCH, "/api/phases/*/paiement").hasRole("COMPTABLE")
@@ -81,7 +84,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/reporting/**").hasAnyRole("DIRECTEUR", "COMPTABLE")
                         .requestMatchers("/api/phases/terminees-non-facturees").hasRole("COMPTABLE")
                         .requestMatchers("/api/phases/facturees-non-payees").hasRole("COMPTABLE")
-
+                        .requestMatchers("/api/factures/**").hasAnyRole("COMPTABLE")
                         .anyRequest().authenticated()
                 );
 
