@@ -29,20 +29,22 @@ public class PhaseService {
     }
 
     // CREATE
-    public PhaseResponseDTO addPhase(int projetId, PhaseRequestDTO dto) {
+    public PhaseResponseDTO addPhase(PhaseRequestDTO dto) {
+        // 1. On récupère le projetId depuis le DTO
+        int projetId = dto.projetId();
 
         Projet projet = projetRepository.findById(projetId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Projet introuvable avec id : " + projetId)
                 );
 
-        // règle métier dates
+        // règle métier dates (Inchangée, c'est parfait)
         if (dto.dateDebut().before(projet.getDateDebut()) ||
                 dto.dateFin().after(projet.getDateFin())) {
             throw new BusinessException("Les dates de la phase doivent être incluses dans celles du projet");
         }
 
-        // règle métier montant
+        // règle métier montant (Inchangée, très bien joué)
         double somme = phaseRepository.findByProjetId(projetId)
                 .stream()
                 .mapToDouble(Phase::getMontant)
@@ -52,8 +54,8 @@ public class PhaseService {
             throw new BusinessException("Le montant total des phases dépasse celui du projet");
         }
 
+        // Mapping et sauvegarde
         Phase phase = phaseMapper.toEntity(dto, projet);
-
         return phaseMapper.toResponseDTO(phaseRepository.save(phase));
     }
 

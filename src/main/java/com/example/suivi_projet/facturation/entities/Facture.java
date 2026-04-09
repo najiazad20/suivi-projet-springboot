@@ -1,6 +1,8 @@
 package com.example.suivi_projet.facturation.entities;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.Date;
 import com.example.suivi_projet.projet.entities.Phase;
 
@@ -14,7 +16,7 @@ public class Facture {
     private String code;
 
     @Temporal(TemporalType.DATE)
-    private Date dateFacture;
+    private LocalDate dateFacture;
 
     @OneToOne
     private Phase phase;
@@ -22,7 +24,7 @@ public class Facture {
     public Facture() {
     }
 
-    public Facture( String code, Date dateFacture, Phase phase) {
+    public Facture( String code, LocalDate dateFacture, Phase phase) {
         this.id = id;
         this.code = code;
         this.dateFacture = dateFacture;
@@ -45,11 +47,11 @@ public class Facture {
         this.code = code;
     }
 
-    public Date getDateFacture() {
+    public LocalDate getDateFacture() {
         return dateFacture;
     }
 
-    public void setDateFacture(Date dateFacture) {
+    public void setDateFacture(LocalDate dateFacture) {
         this.dateFacture = dateFacture;
     }
 

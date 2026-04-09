@@ -2,10 +2,11 @@ package com.example.suivi_projet.reporting.controllers;
 
 import com.example.suivi_projet.reporting.dto.*;
 import com.example.suivi_projet.reporting.services.ReportingService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@PreAuthorize("hasAnyRole('DIRECTEUR', 'CHEF_PROJET', 'COMPTABLE')")
 @RestController
 @RequestMapping("/api/reporting")
 public class ReportingController {

@@ -1,5 +1,7 @@
 package com.example.suivi_projet.projet.controllers;
 
+import com.example.suivi_projet.projet.dto.ProjetRequestDTO;
+import com.example.suivi_projet.projet.dto.ProjetResponseDTO;
 import jakarta.validation.Valid;
 import com.example.suivi_projet.projet.dto.PhaseRequestDTO;
 import com.example.suivi_projet.projet.dto.PhaseResponseDTO;
@@ -20,8 +22,6 @@ public class PhaseController {
         this.phaseService = phaseService;
     }
 
-
-
     // GET phases projet
     @PreAuthorize("hasRole('CHEF_PROJET')")
     @GetMapping("/projets/{projetId}/phases")
@@ -30,11 +30,10 @@ public class PhaseController {
     }
     // CREATE
     @PreAuthorize("hasRole('CHEF_PROJET')")
-    @PostMapping("/projets/{projetId}/phases")
+    @PostMapping("/phases")
     @ResponseStatus(HttpStatus.CREATED)
-    public PhaseResponseDTO addPhase(@PathVariable int projetId,
-                                     @Valid @RequestBody PhaseRequestDTO dto) {
-        return phaseService.addPhase(projetId, dto);
+    public PhaseResponseDTO addPhase(@Valid @RequestBody PhaseRequestDTO dto) {
+        return phaseService.addPhase(dto);
     }
     // GET by id
     @PreAuthorize("hasRole('CHEF_PROJET')")

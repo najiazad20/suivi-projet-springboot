@@ -11,6 +11,8 @@ import com.example.suivi_projet.projet.repositories.PhaseRepository;
 
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -101,9 +103,9 @@ public class FactureService {
                 .toList();
     }
     //  recherche comptable
-    public List<FactureResponseDTO> getFacturesByDate(java.util.Date date) {
+    public List<FactureResponseDTO> getFacturesByDate(LocalDate localDate) {
 
-        return factureRepository.findByDateFacture(date)
+        return factureRepository.findByDateFacture(localDate)
                 .stream()
                 .map(factureMapper::toDTO)
                 .toList();

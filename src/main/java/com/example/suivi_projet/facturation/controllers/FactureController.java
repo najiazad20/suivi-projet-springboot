@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 @PreAuthorize("hasRole('COMPTABLE')")
@@ -57,7 +58,7 @@ public class FactureController {
 
     // SEARCH BY DATE
     @GetMapping("/factures/byDate")
-    public List<FactureResponseDTO> getFacturesByDate(@RequestParam Date date) {
+    public List<FactureResponseDTO> getFacturesByDate(@RequestParam("date") LocalDate date) {
         return factureService.getFacturesByDate(date);
     }
     @GetMapping("/factures/byCode")

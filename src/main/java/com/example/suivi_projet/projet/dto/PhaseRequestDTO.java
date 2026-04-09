@@ -12,8 +12,15 @@ public record PhaseRequestDTO(
         @NotNull Date dateDebut,
         @NotNull Date dateFin,
 
-        @Positive double montant
+        @Positive double montant,
 
-)
-{
+
+        boolean etatRealisation,
+        boolean etatFacturation,
+        boolean etatPaiement,
+
+        @NotNull(message = "Le projet est obligatoire")
+        Integer projetId
+
+) {
 }

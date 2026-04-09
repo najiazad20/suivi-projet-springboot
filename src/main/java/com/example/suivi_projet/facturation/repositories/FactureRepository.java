@@ -3,6 +3,7 @@ package com.example.suivi_projet.facturation.repositories;
 import com.example.suivi_projet.facturation.entities.Facture;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,6 @@ public interface FactureRepository extends JpaRepository<Facture, Integer> {
 
 
 
-    List<Facture> findByDateFacture(Date dateFacture);
+    List<Facture> findByDateFacture(LocalDate date);
     List<Facture> findByCode(String code);
 }

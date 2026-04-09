@@ -81,7 +81,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/projets/*/documents").hasAnyRole("CHEF_PROJET", "DIRECTEUR", "SECRETAIRE")
 
                         // 6. REPORTING (UC3)
-                        .requestMatchers("/api/reporting/**").hasAnyRole("DIRECTEUR", "COMPTABLE")
+                        .requestMatchers("/api/reporting/**").hasAnyRole("DIRECTEUR", "CHEF_PROJET", "COMPTABLE")
                         .requestMatchers("/api/phases/terminees-non-facturees").hasRole("COMPTABLE")
                         .requestMatchers("/api/phases/facturees-non-payees").hasRole("COMPTABLE")
                         .requestMatchers("/api/factures/**").hasAnyRole("COMPTABLE")
