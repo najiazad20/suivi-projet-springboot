@@ -41,6 +41,7 @@ public class SecurityConfig {
 
                         // AUTHENTIFICATION
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/forgot-password").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
                         // API AUTH (Récupérer profil ou changer pass) : Tout utilisateur connecté
