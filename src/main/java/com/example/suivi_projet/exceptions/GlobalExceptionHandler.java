@@ -3,6 +3,7 @@ package com.example.suivi_projet.exceptions;
 import com.example.suivi_projet.exceptions.BusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleBusiness(BusinessException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
-
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handleAccessDenied(AccessDeniedException ex) {
+        return new ResponseEntity<>("Accès refusé : vous n'avez pas les droits nécessaires.",
+                HttpStatus.FORBIDDEN);
+    }
     // Validation DTO (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
@@ -44,4 +49,5 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("Erreur serveur : " + ex.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }

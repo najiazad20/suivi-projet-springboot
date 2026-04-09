@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/me").authenticated()
                         .requestMatchers("/api/auth/change-password").authenticated()
                         // 1. ADMINISTRATEUR (Gestion des utilisateurs & profils)
+                        .requestMatchers(HttpMethod.GET, "/api/employes/disponibles").hasAnyRole("CHEF_PROJET", "ADMINISTRATEUR")
                         .requestMatchers("/api/employes/**").hasRole("ADMINISTRATEUR")
                         .requestMatchers("/api/profils/**").hasRole("ADMINISTRATEUR")
 
@@ -59,31 +60,34 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/projets/*/montant").hasRole("DIRECTEUR")
                         .requestMatchers(HttpMethod.PATCH, "/api/projets/*/affecter-chef").hasRole("DIRECTEUR")
                         // Recherche & Consultation : Tout le monde authentifié
-                        .requestMatchers("/api/projets/**").hasRole("DIRECTEUR")
-                        .requestMatchers(HttpMethod.GET, "/api/projets/**").hasAnyRole("SECRETAIRE")
 
-                        // 3. ORGANISMES (UC1)
+                        .requestMatchers(HttpMethod.GET, "/api/projets/*/phases").hasAnyRole("SECRETAIRE", "CHEF_PROJET")                        // 3. ORGANISMES (UC1)
+                        .requestMatchers(HttpMethod.GET, "/api/projets/**").hasAnyRole("SECRETAIRE", "DIRECTEUR")
+                        .requestMatchers("/api/projets/**").hasRole("DIRECTEUR")
                         .requestMatchers("/api/organismes/**").hasAnyRole("SECRETAIRE")
 
                         // 4. PHASES (UC1 & UC3)
                         // Structure (Chef de projet)
-                        .requestMatchers(HttpMethod.POST, "/api/projets/*/phases").hasRole("CHEF_PROJET")
+
                         .requestMatchers(HttpMethod.PATCH, "/api/phases/*/realisation").hasRole("CHEF_PROJET")
-                        .requestMatchers("/api/phases/*/employes/**").hasRole("CHEF_PROJET")
-                        .requestMatchers("/api/phases/*/employes").hasRole("CHEF_PROJET")
-                        .requestMatchers(HttpMethod.PATCH, "/api/employes/disponibles").hasRole("CHEF_PROJET")
-                        // Finance (Comptable)
                         .requestMatchers(HttpMethod.PATCH, "/api/phases/*/facturation").hasRole("COMPTABLE")
                         .requestMatchers(HttpMethod.PATCH, "/api/phases/*/paiement").hasRole("COMPTABLE")
+                        .requestMatchers("/api/phases/terminees-non-facturees").hasRole("COMPTABLE")
+                        .requestMatchers("/api/phases/facturees-non-payees").hasRole("COMPTABLE")
+                        .requestMatchers("/api/phases/*/employes/**").hasRole("CHEF_PROJET")
+                        .requestMatchers("/api/phases/*/employes").hasRole("CHEF_PROJET")
+
+                        // Finance (Comptable)
+
+                        .requestMatchers("/api/phases/**").hasRole("CHEF_PROJET")
 
                         // 5. LIVRABLES & DOCUMENTS
                         .requestMatchers("/api/livrables/**").hasAnyRole("CHEF_PROJET", "DIRECTEUR")
                         .requestMatchers("/api/projets/*/documents").hasAnyRole("CHEF_PROJET", "DIRECTEUR", "SECRETAIRE")
-
+                        .requestMatchers("/api/documents/**").hasAnyRole("CHEF_PROJET", "DIRECTEUR", "SECRETAIRE")
                         // 6. REPORTING (UC3)
                         .requestMatchers("/api/reporting/**").hasAnyRole("DIRECTEUR", "CHEF_PROJET", "COMPTABLE")
-                        .requestMatchers("/api/phases/terminees-non-facturees").hasRole("COMPTABLE")
-                        .requestMatchers("/api/phases/facturees-non-payees").hasRole("COMPTABLE")
+
                         .requestMatchers("/api/factures/**").hasAnyRole("COMPTABLE")
                         .anyRequest().authenticated()
                 );

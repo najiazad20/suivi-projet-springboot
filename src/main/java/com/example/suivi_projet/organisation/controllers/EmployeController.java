@@ -45,7 +45,7 @@ public class EmployeController {
     public void delete(@PathVariable int id) {
         service.delete(id);
     }
-    @PreAuthorize("hasRole('CHEF_PROJET')")
+    @PreAuthorize("hasAnyRole('CHEF_PROJET', 'ADMINISTRATEUR')")
     @GetMapping("/disponibles")
     public List<EmployeResponseDTO> disponibles(
             @RequestParam LocalDate dateDebut,

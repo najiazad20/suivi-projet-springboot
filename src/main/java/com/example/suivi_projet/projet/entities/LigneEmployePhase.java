@@ -11,10 +11,10 @@ public class LigneEmployePhase {
     @EmbeddedId
     private LigneEmployePhaseId id;
 
-    @Temporal(TemporalType.DATE)
+
     private Date dateDebut;
 
-    @Temporal(TemporalType.DATE)
+
     private Date dateFin;
 
     @ManyToOne

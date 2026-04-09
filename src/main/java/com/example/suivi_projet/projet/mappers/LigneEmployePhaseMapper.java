@@ -4,6 +4,7 @@ import com.example.suivi_projet.projet.dto.LigneEmployePhaseRequestDTO;
 import com.example.suivi_projet.projet.dto.LigneEmployePhaseResponseDTO;
 import com.example.suivi_projet.projet.entities.LigneEmployePhase;
 import com.example.suivi_projet.organisation.entities.Employe;
+import com.example.suivi_projet.projet.entities.LigneEmployePhaseId;
 import com.example.suivi_projet.projet.entities.Phase;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,10 @@ public class LigneEmployePhaseMapper {
                                       Phase phase) {
 
         LigneEmployePhase ligne = new LigneEmployePhase();
-
+        ligne.setId(new LigneEmployePhaseId(
+                employe.getId(),
+                phase.getId()
+        ));
         ligne.setDateDebut(dto.dateDebut());
         ligne.setDateFin(dto.dateFin());
         ligne.setEmploye(employe);
