@@ -183,7 +183,7 @@ npm start
 - Gestion des documents
 - Gestion des factures
 
-  ---
+---
 
 ## 📊 Dashboard / Reporting
 
@@ -197,12 +197,12 @@ npm start
   ## 📡 API Documentation
 
 
-  ---
+---
   
  ## 🧪 Tests Swagger
 
 
- ---
+---
 
  ## 🐳 Conteneurisation
 
