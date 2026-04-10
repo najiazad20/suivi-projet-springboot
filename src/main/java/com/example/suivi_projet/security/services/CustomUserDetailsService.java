@@ -17,11 +17,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Recherche de l'employé par son login
+
         Employe employe = employeRepository.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Employé non trouvé : " + username));
 
-        // Formatage du rôle : ROLE_ + libellé du profil (ex: ROLE_ADMINISTRATEUR)
+
         String roleName = "ROLE_" + employe.getProfil().getLibelle().toUpperCase().replace(" ", "_");
 
         return new User(
