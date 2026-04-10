@@ -199,7 +199,63 @@ npm start
 
 ---
   
- ## 🧪 Tests Swagger
+
+   ## 🧪 Tests Swagger
+   
+   ### 🛡️Tests de Succès (Validation Fonctionnelle)
+   
+
+#### * Extraction des phases facturées non payées
+![WhatsApp Image 2026-04-10 at 18 01 37](https://github.com/user-attachments/assets/1a7115cb-3a36-4741-ac60-048cd0b26055)
+
+#### * Validation d'un paiement
+![WhatsApp Image 2026-04-10 at 18 01 00](https://github.com/user-attachments/assets/4044b75c-b374-45e6-b673-4ead06349c3e)
+
+
+#### * Recherche d'employés disponibles
+![WhatsApp Image 2026-04-10 at 18 02 58](https://github.com/user-attachments/assets/6e2d33ac-6a67-444c-8ed9-6d2fd875e339)
+
+#### *Mise à jour de la réalisation technique
+![WhatsApp Image 2026-04-10 at 18 00 37](https://github.com/user-attachments/assets/1acd31f2-bc56-4e29-b0bd-e6cb6f38e322)
+
+
+
+
+#### * Consultation du profil utilisateur (/me)
+
+![WhatsApp Image 2026-04-10 at 17 57 20](https://github.com/user-attachments/assets/3bf491f4-42e2-47fe-b34d-f55295c691ae)
+
+  ### 🛠️ Tests de Robustesse (Gestion des Erreurs)
+#### *Erreur - Chevauchement de dates (Affectation)
+![WhatsApp Image 2026-04-10 at 17 59 45](https://github.com/user-attachments/assets/935ea4a5-4703-4dc9-bd22-0d5c54c109c8)
+
+#### *Erreur - Incohérence des dates du Projet
+![WhatsApp Image 2026-04-10 at 17 58 43](https://github.com/user-attachments/assets/85088752-9db8-4231-99eb-38ad20a72908)
+
+#### *Erreur - Dépassement budgétaire (Phases)
+![WhatsApp Image 2026-04-10 at 17 58 54](https://github.com/user-attachments/assets/8fe8fb8f-a90f-48f1-87d8-f7252e02a4dc)
+
+
+#### *Erreur - Phase déjà facturée
+
+![WhatsApp Image 2026-04-10 at 17 59 15](https://github.com/user-attachments/assets/953e9413-706c-451f-929b-38e405ec9c1c)
+
+#### *Erreur - Organisme introuvable
+![WhatsApp Image 2026-04-10 at 17 56 30](https://github.com/user-attachments/assets/5eaa652d-ee6d-404f-9e45-2e9aa17b4f77)
+
+
+#### *Erreur - Livrable inexistant
+
+![WhatsApp Image 2026-04-10 at 17 59 57](https://github.com/user-attachments/assets/b050dc76-bfb6-4d97-ad68-d8b9b5b3b337)
+#### *Suppression d'un organisme inexistant
+![WhatsApp Image 2026-04-10 at 18 14 08](https://github.com/user-attachments/assets/ef90c4f6-f423-4743-a96c-e505ef6393ad)
+
+#### *Violation d'unicité du Matricule
+![WhatsApp Image 2026-04-10 at 16 32 07](https://github.com/user-attachments/assets/e61bc99e-749e-40ce-8323-776c86a558c2)
+
+#### *Login erroné
+![WhatsApp Image 2026-04-10 at 18 14 09](https://github.com/user-attachments/assets/372788e2-c7d1-4230-b3c1-bdbe85df2e86)
+
 
 
 ---
