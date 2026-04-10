@@ -32,10 +32,16 @@ La problématique principale est de gérer efficacement le cycle de vie d’un p
 ## 🏗️ Architecture du projet
 
 ### 🔹 Backend (Spring Boot)
-- API REST
-- Architecture en couches (Controller → Service → Repository → Entity)
-- Gestion métier centralisée
-- Validation et gestion des exceptions
+
+Le backend est basé sur une architecture **modulaire et en couches**.  
+Il est structuré par domaines métier (`organisation`, `projet`, `facturation`, `reporting`, `security`) et chaque module contient des packages tels que `controllers`, `services`, `repositories`, `entities`, `dto` et `mappers`.
+
+Cette organisation permet de séparer clairement :
+- l’exposition des API REST
+- la logique métier
+- l’accès aux données
+- la sécurité JWT
+- la gestion centralisée des exceptions
 
 ### 🔹 Frontend (React)
 - Application SPA (Single Page Application)
@@ -97,3 +103,110 @@ La problématique principale est de gérer efficacement le cycle de vie d’un p
 
 <img width="313" height="425" alt="image" src="https://github.com/user-attachments/assets/65108e18-f361-40e4-87ae-16b3d1aa4daf" />
 
+
+### Frontend
+
+
+
+---
+
+## 🚀 Installation et exécution
+
+### 🔹 Prérequis
+- Docker
+- Docker Compose
+- Java 17, Maven, Node.js
+
+---
+
+### 🔹 Étapes d’installation
+
+
+----
+## 🐳 Lancer avec Docker
+
+```bash
+docker-compose up --build
+
+```
+
+---
+
+## 💻 Lancer sans Docker
+
+### 🔹 Backend
+
+```bash
+cd backend
+mvn spring-boot:run
+```
+### 🔹 Frontend
+
+```bash
+cd frontend
+npm install
+npm start
+
+```
+---
+
+## 🔐 Sécurité
+
+**Type d’authentification** : JWT (JSON Web Token)
+
+**Gestion des rôles** :
+
+- Administrateur
+- Secrétaire
+- Chef de projet
+- Comptable
+- Directeur
+
+  
+**Protection des routes** :
+  
+**Backend** : Spring Security
+
+**Frontend** : PrivateRoute / RoleRoute
+
+----
+
+## 📦 Fonctionnalités principales
+
+- Gestion des organismes
+- Gestion des employés
+- Gestion des projets
+- Gestion des phases
+- Affectation des employés
+- Gestion des livrables
+- Gestion des documents
+- Gestion des factures
+
+  ----
+
+## 📊 Dashboard / Reporting
+
+- Tableau de bord global
+- Phases terminées non facturées
+- Phases facturées non payées
+- Phases payées
+- Suivi des projets
+
+
+  ## 📡 API Documentation
+
+
+  ----
+  
+ ## 🧪 Tests Swagger
+
+
+ ----
+
+ ## 🐳 Conteneurisation
+
+ - **Dockerfile** : backend
+ - **docker-compose** : orchestration
+   
+
+  
