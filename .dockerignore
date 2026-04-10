@@ -4,6 +4,7 @@ target/
 Dockerfile
 docker-compose.yml
 *.log
+
 *.md
 
 node_modules/
