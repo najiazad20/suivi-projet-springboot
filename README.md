@@ -200,12 +200,16 @@ npm start
  ## http://localhost:8080/v3/api-docs
 
 ---
-  
+  ## Demonstration video :
+  https://github.com/user-attachments/assets/15a7eef2-def9-4c6f-a9a7-328f511a11b1
 
    ## 🧪 Tests Swagger
+
+
    
    ### 🛡️Tests de Succès (Validation Fonctionnelle)
-   
+   #### *Login:
+<img width="1825" height="941" alt="image" src="https://github.com/user-attachments/assets/31551547-802f-44c5-ab41-261b47b62230" />
 
 #### * Extraction des phases facturées non payées
 ![WhatsApp Image 2026-04-10 at 18 01 37](https://github.com/user-attachments/assets/1a7115cb-3a36-4741-ac60-048cd0b26055)
@@ -257,6 +261,8 @@ npm start
 
 #### *Login erroné
 ![WhatsApp Image 2026-04-10 at 18 14 09](https://github.com/user-attachments/assets/372788e2-c7d1-4230-b3c1-bdbe85df2e86)
+
+
 
 
 
