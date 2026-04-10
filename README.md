@@ -59,7 +59,7 @@ Cette organisation permet de séparer clairement :
 - Services :
   - backend
   - base de données
-  - frontend (optionnel)
+  - frontend 
 - Communication via réseau Docker interne 
 
 ---
@@ -122,7 +122,8 @@ Cette organisation permet de séparer clairement :
 ### 🔹 Étapes d’installation
 
 
-----
+---
+
 ## 🐳 Lancer avec Docker
 
 ```bash
@@ -169,7 +170,7 @@ npm start
 
 **Frontend** : PrivateRoute / RoleRoute
 
-----
+---
 
 ## 📦 Fonctionnalités principales
 
@@ -182,7 +183,7 @@ npm start
 - Gestion des documents
 - Gestion des factures
 
-  ----
+  ---
 
 ## 📊 Dashboard / Reporting
 
@@ -196,12 +197,12 @@ npm start
   ## 📡 API Documentation
 
 
-  ----
+  ---
   
  ## 🧪 Tests Swagger
 
 
- ----
+ ---
 
  ## 🐳 Conteneurisation
 
