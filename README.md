@@ -14,7 +14,7 @@ L’objectif est de centraliser les données relatives aux projets afin d’assu
 - une coordination efficace entre les intervenants
 - un contrôle rigoureux des opérations métiers et financières
 
-La problématique principale est de gérer efficacement le cycle de vie d’un projet, depuis sa création jusqu’au paiement des phases, tout en garantissant la sécurité des accès selon les rôles utilisateurs :contentReference[oaicite:0]{index=0}
+La problématique principale est de gérer efficacement le cycle de vie d’un projet, depuis sa création jusqu’au paiement des phases, tout en garantissant la sécurité des accès selon les rôles utilisateurs .
 
 ---
 
@@ -54,7 +54,7 @@ La problématique principale est de gérer efficacement le cycle de vie d’un p
   - backend
   - base de données
   - frontend (optionnel)
-- Communication via réseau Docker interne :contentReference[oaicite:1]{index=1}
+- Communication via réseau Docker interne 
 
 ---
 
@@ -93,3 +93,5 @@ La problématique principale est de gérer efficacement le cycle de vie d’un p
 ## 📁 Structure du projet
 
 ### Backend
+
+<img width="313" height="425" alt="image" src="https://github.com/user-attachments/assets/fb9a2400-2963-4073-ab7d-b1734c1bfa35" />
