@@ -14,7 +14,7 @@ L’objectif est de centraliser les données relatives aux projets afin d’assu
 - une coordination efficace entre les intervenants
 - un contrôle rigoureux des opérations métiers et financières
 
-La problématique principale est de gérer efficacement le cycle de vie d’un projet, depuis sa création jusqu’au paiement des phases, tout en garantissant la sécurité des accès selon les rôles utilisateurs .
+La problématique principale est de gérer efficacement le cycle de vie d’un projet, depuis sa création jusqu’au paiement des phases, tout en garantissant la sécurité des accès selon les rôles des utilisateurs .
 
 ---
 
@@ -208,5 +208,8 @@ npm start
  - **Dockerfile** : backend
  - **docker-compose** : orchestration
    
+---
 
-  
+## 👤 Auteur
+
+👨‍💻 Ait Larbi Ben Hachmi Oumaima      👨‍💻 Aziz Khadija     👨‍💻 Zad Najia
