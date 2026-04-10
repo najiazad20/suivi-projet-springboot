@@ -69,6 +69,7 @@ Cette organisation permet de séparer clairement :
 <img width="958" height="704" alt="Capture d&#39;écran 2026-04-09 181148" src="https://github.com/user-attachments/assets/c48f06d9-eeab-4718-a613-e587721f846e" />
 
 
+
 ---
 
 ## ⚙️ Technologies utilisées
@@ -106,6 +107,7 @@ Cette organisation permet de séparer clairement :
 
 ### Frontend
 
+<img width="617" height="785" alt="image" src="https://github.com/user-attachments/assets/bf1d142b-1db5-4ba3-afe2-d83a174326c2" />
 
 
 ---
