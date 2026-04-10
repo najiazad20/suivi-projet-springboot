@@ -111,6 +111,8 @@ Cette organisation permet de séparer clairement :
 ---
 
 ## 🚀 Installation et exécution
+<img width="813" height="211" alt="image" src="https://github.com/user-attachments/assets/e5963319-6b3f-4cce-88a1-97b81e1a8db9" />
+
 
 ### 🔹 Prérequis
 - Docker
