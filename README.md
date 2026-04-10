@@ -106,8 +106,8 @@ Cette organisation permet de séparer clairement :
 
 
 ### Frontend
+<img width="332" height="562" alt="image" src="https://github.com/user-attachments/assets/b92aeb8b-57a8-4178-b549-6d676f283600" />
 
-<img width="617" height="785" alt="image" src="https://github.com/user-attachments/assets/bf1d142b-1db5-4ba3-afe2-d83a174326c2" />
 
 
 ---
