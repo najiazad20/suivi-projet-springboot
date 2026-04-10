@@ -258,7 +258,10 @@ npm start
 #### *Login erroné
 ![WhatsApp Image 2026-04-10 at 18 14 09](https://github.com/user-attachments/assets/372788e2-c7d1-4230-b3c1-bdbe85df2e86)
 
+#### *Login:
+<img width="1825" height="941" alt="image" src="https://github.com/user-attachments/assets/31551547-802f-44c5-ab41-261b47b62230" />
 
+<img width="1787" height="890" alt="image" src="https://github.com/user-attachments/assets/1fbee472-4e07-4a57-9b22-3152715acf6a" />
 
 ---
 
