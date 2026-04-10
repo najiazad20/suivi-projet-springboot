@@ -18,7 +18,7 @@ public class AuthController {
     private final EmployeRepository employeRepository;
     private final PasswordEncoder passwordEncoder;
 
-
+    // Constructeur avec 4 arguments pour correspondre à l'injection
     public AuthController(AuthenticationManager am, JwtUtil ju, EmployeRepository er, PasswordEncoder pe) {
         this.authManager = am;
         this.jwtUtil = ju;

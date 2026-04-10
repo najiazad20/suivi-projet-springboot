@@ -77,6 +77,9 @@ public class EmployeService {
                 .orElseThrow(() -> new ResourceNotFoundException("Profil introuvable"));
 
         mapper.update(dto, e, profil);
+        if (dto.password() != null && !dto.password().isBlank()) {
+            e.setPassword(passwordEncoder.encode(dto.password()));
+        }
 
         return mapper.toDTO(employeRepository.save(e));
     }
