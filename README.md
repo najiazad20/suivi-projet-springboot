@@ -200,7 +200,8 @@ npm start
  ## http://localhost:8080/v3/api-docs
 
 ---
-  
+  ## Demonstration video :
+  https://github.com/user-attachments/assets/15a7eef2-def9-4c6f-a9a7-328f511a11b1
 
    ## 🧪 Tests Swagger
 
