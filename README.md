@@ -94,4 +94,6 @@ La problématique principale est de gérer efficacement le cycle de vie d’un p
 
 ### Backend
 
-<img width="313" height="425" alt="image" src="https://github.com/user-attachments/assets/fb9a2400-2963-4073-ab7d-b1734c1bfa35" />
+
+<img width="313" height="425" alt="image" src="https://github.com/user-attachments/assets/65108e18-f361-40e4-87ae-16b3d1aa4daf" />
+
