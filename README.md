@@ -209,7 +209,7 @@ npm start
 ---
 
 ### 🧾 Comptable
-
+---
 
 ### 🗂️ Secrétaire
 
