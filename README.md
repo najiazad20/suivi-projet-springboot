@@ -205,19 +205,19 @@ npm start
 
 ## 🎥 Vidéos de démonstration par rôle
 
-### 👑 Administrateur
+### 👑 Démonstration - Administrateur
 ---
 
-### 🧾 Comptable
+### 🧾 Démonstration - Comptable
 ---
 
-### 🗂️ Secrétaire
+### 🗂️ Démonstration - Secrétaire
 ---
 
-### 📊 Chef de Projet
+### 📊 Démonstration - Chef de Projet
 ---
 
-### 🧑‍💼 Directeur
+### 🧑‍💼 Démonstration - Directeur
 
 ---
 
