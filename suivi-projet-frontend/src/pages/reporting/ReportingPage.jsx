@@ -40,31 +40,48 @@ export default function ReportingPage() {
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       try {
-        const [tRes, npRes, pRes, fRes] = await Promise.all([
-          reportingService.termineesNonFacturees(),
-          reportingService.factureesNonPayees(),
-          reportingService.allProjets(),
-          reportingService.allFactures(),
-        ]);
-        setTerminees(tRes.data);
-        setNonPayees(npRes.data);
-        setProjets(pRes.data);
-        setFactures(fRes.data);
-      } catch { toast.error('Erreur de chargement'); }
-      finally { setLoading(false); }
+        // Chargement des projets (Essentiel)
+        try {
+          const pRes = await reportingService.allProjets();
+          setProjets(pRes.data);
+        } catch (e) { console.error("Erreur projets", e); }
+
+        // Chargement résilient des autres données
+        try {
+          const tRes = await reportingService.termineesNonFacturees();
+          setTerminees(tRes.data);
+        } catch (e) { console.warn("Phases non facturées non accessibles", e); }
+
+        try {
+          const npRes = await reportingService.factureesNonPayees();
+          setNonPayees(npRes.data);
+        } catch (e) { console.warn("Phases non payées non accessibles", e); }
+
+        try {
+          const fRes = await reportingService.allFactures();
+          setFactures(fRes.data);
+        } catch (e) { console.warn("Factures non accessibles (Comptable uniquement)", e); }
+
+      } catch (err) {
+        toast.error('Erreur de chargement des données');
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
 
   if (loading) return <div className="loading-center"><div className="spinner" /></div>;
 
-  const totalBudget         = projets.reduce((s, p) => s + p.montant, 0);
-  const totalNonFacture     = terminees.reduce((s, p) => s + p.montant, 0);
-  const totalNonPaye        = nonPayees.reduce((s, p) => s + p.montant, 0);
+  const totalBudget         = projets.reduce((s, p) => s + (p.montant || 0), 0);
+  const totalNonFacture     = terminees.reduce((s, p) => s + (p.montant || 0), 0);
+  const totalNonPaye        = nonPayees.reduce((s, p) => s + (p.montant || 0), 0);
   const totalFacture        = factures.reduce((s, f) => s + (f.phase?.montant || 0), 0);
-  const projetsEnCours      = projets.filter(p => !p.description?.includes('CLÔTURÉ'));
-  const projetsClotures     = projets.filter(p => p.description?.includes('CLÔTURÉ'));
+
+  const projetsEnCours      = projets.filter(p => !p.description?.toUpperCase().includes('CLÔTURÉ') && !p.nom?.toUpperCase().includes('CLÔTURÉ'));
+  const projetsClotures     = projets.filter(p => p.description?.toUpperCase().includes('CLÔTURÉ') || p.nom?.toUpperCase().includes('CLÔTURÉ'));
 
   // Bar chart data: budget par projet (top 8)
   const budgetChartData = projets.slice(0, 8).map(p => ({

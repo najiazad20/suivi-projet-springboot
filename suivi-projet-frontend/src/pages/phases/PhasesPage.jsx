@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import Modal, { ConfirmModal } from '../../components/common/Modal';
-import { Search, GitBranch, CheckCircle, Circle, ChevronRight, Filter, Pencil, Trash2, Receipt, DollarSign } from 'lucide-react';
+import { Search, GitBranch, CheckCircle, Circle, ChevronRight, Filter, Pencil, Trash2, Receipt, DollarSign, Plus } from 'lucide-react';
 
 function PhaseForm({ initial, projetId, onSave, onClose }) {
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -16,9 +16,16 @@ function PhaseForm({ initial, projetId, onSave, onClose }) {
       projetId,
     } : { projetId }
   });
-
   return (
     <form onSubmit={handleSubmit(onSave)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {!initial && (
+        <div className="form-group" style={{ gridColumn: 'span 2' }}>
+          <label className="form-label">ID Projet</label>
+          <input className="form-control" type="number" placeholder="Ex: 1"
+            {...register('projetId', { required: 'ID projet requis', valueAsNumber: true })} />
+          {errors.projetId && <span className="form-error">{errors.projetId.message}</span>}
+        </div>
+      )}
       <div className="form-grid">
         <div className="form-group">
           <label className="form-label">Code</label>
@@ -80,21 +87,36 @@ export default function PhasesPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const projRes = await projetService.getAll();
-      setProjets(projRes.data);
-      // Load all phases for all projects
+      // Chargement résilient des projets (bloqué pour le Chef de projet en général)
+      let projetsList = [];
+      try {
+        const projRes = await projetService.getAll();
+        projetsList = projRes.data;
+        setProjets(projetsList);
+      } catch (e) {
+        console.warn("Accès projets restreint pour ce rôle", e);
+      }
+
+      // Chargement des phases pour les projets visibles (s'il y en a)
       const allPhases = await Promise.all(
-        projRes.data.map(p =>
+        projetsList.map(p =>
           phaseService.getByProjet(p.id)
             .then(r => r.data.map(ph => ({ ...ph, projetNom: p.nom, projetId: p.id })))
-            .catch(() => [])
+            .catch(e => {
+              console.warn(`Erreur phases projet ${p.id}`, e);
+              return [];
+            })
         )
       );
       const flat = allPhases.flat();
       setPhases(flat);
       setFiltered(flat);
-    } catch { toast.error('Erreur de chargement'); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error("Erreur critique chargement phases", err);
+      // On n'affiche plus de toast.error ici pour rester discret si l'accès est restreint
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -117,13 +139,58 @@ export default function PhasesPage() {
     setFiltered(result);
   }, [search, filterProjet, filterEtat, phases]);
 
+  const handleCreate = async (data) => {
+    try {
+      await phaseService.create({ ...data, montant: Number(data.montant) });
+      toast.success('Phase ajoutée');
+      setModal(null);
+      load();
+    } catch (err) { toast.error(err.response?.data?.message || 'Erreur'); }
+  };
+
   const handleUpdate = async (data) => {
     try {
       await phaseService.update(selected.id, { ...data, montant: Number(data.montant) });
       toast.success('Phase mise à jour');
       setModal(null);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Erreur'); }
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
+  };
+
+  const handleRealisation = async (id) => {
+    try {
+      await phaseService.setRealisation(id);
+      toast.success('Phase marquée comme réalisée');
+      load();
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
+  };
+
+  const handleFacturation = async (id) => {
+    try {
+      await phaseService.setFacturation(id);
+      toast.success('Phase marquée comme facturée');
+      load();
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
+  };
+
+  const handlePaiement = async (id) => {
+    try {
+      await phaseService.setPaiement(id);
+      toast.success('Phase marquée comme payée');
+      load();
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
   };
 
   const handleDelete = async () => {
@@ -143,7 +210,10 @@ export default function PhasesPage() {
       if (type === 'paiement')    await phaseService.setPaiement(phase.id);
       toast.success('État mis à jour');
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Erreur'); }
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
   };
 
   const getStatusBadge = (phase) => {
@@ -160,6 +230,11 @@ export default function PhasesPage() {
           <h1 className="page-title">Phases</h1>
           <p className="page-subtitle">{filtered.length} phase(s) au total</p>
         </div>
+        {hasRole('CHEF_PROJET', 'DIRECTEUR', 'ADMINISTRATEUR') && (
+          <button className="btn btn-primary" onClick={() => { setSelected(null); setModal('add'); }}>
+            <Plus size={16} /> Nouvelle phase
+          </button>
+        )}
       </div>
 
       <div className="card mb-6">
@@ -241,36 +316,39 @@ export default function PhasesPage() {
                     <td style={{ fontWeight: 600 }}>{p.montant?.toLocaleString('fr-FR')} MAD</td>
                     <td>{getStatusBadge(p)}</td>
                     <td>
-                      <div style={{ display: 'flex', gap: 6 }}>
-                        <Link to={`/phases/${p.id}`} className="btn btn-secondary btn-sm btn-icon">
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        <Link to={`/phases/${p.id}`} className="btn btn-secondary btn-sm btn-icon" title="Voir détail">
                           <ChevronRight size={13} />
                         </Link>
-                        {hasRole('CHEF_PROJET', 'ADMINISTRATEUR') && (
+                        
+                        {/* CHEF PROJET - ACTIONS */}
+                        {hasRole('CHEF_PROJET', 'DIRECTEUR') && !p.etatRealisation && (
+                          <button className="btn btn-emerald btn-sm" onClick={() => toggleState(p, 'realisation')} style={{ fontSize: '0.7rem', height: 28, padding: '0 8px' }}>
+                            <CheckCircle size={12} style={{ marginRight: 4 }} /> Réalisée
+                          </button>
+                        )}
+
+                        {/* COMPTABLE - ACTIONS */}
+                        {hasRole('COMPTABLE') && p.etatRealisation && !p.etatFacturation && (
+                          <button className="btn btn-amber btn-sm" onClick={() => toggleState(p, 'facturation')} style={{ fontSize: '0.7rem', height: 28, padding: '0 8px' }}>
+                            <Receipt size={12} style={{ marginRight: 4 }} /> Facturer
+                          </button>
+                        )}
+                        {hasRole('COMPTABLE') && p.etatFacturation && !p.etatPaiement && (
+                          <button className="btn btn-blue btn-sm" onClick={() => toggleState(p, 'paiement')} style={{ fontSize: '0.7rem', height: 28, padding: '0 8px' }}>
+                            <DollarSign size={12} style={{ marginRight: 4 }} /> Payée
+                          </button>
+                        )}
+
+                        {hasRole('CHEF_PROJET', 'DIRECTEUR', 'ADMINISTRATEUR') && (
                           <>
-                            <button className="btn btn-secondary btn-sm btn-icon" onClick={() => { setSelected(p); setModal('edit'); }}>
+                            <button className="btn btn-secondary btn-sm btn-icon" onClick={() => { setSelected(p); setModal('edit'); }} title="Modifier">
                               <Pencil size={13} />
                             </button>
-                            <button className="btn btn-danger btn-sm btn-icon" onClick={() => setDeleteId(p.id)}>
+                            <button className="btn btn-danger btn-sm btn-icon" onClick={() => setDeleteId(p.id)} title="Supprimer">
                               <Trash2 size={13} />
                             </button>
                           </>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
-                        {hasRole('CHEF_PROJET', 'ADMINISTRATEUR') && !p.etatRealisation && (
-                          <button className="btn btn-success btn-xs" onClick={() => toggleState(p, 'realisation')} title="Marquer réalisée" style={{ padding: '2px 4px' }}>
-                            <CheckCircle size={10} />
-                          </button>
-                        )}
-                        {hasRole('COMPTABLE', 'ADMINISTRATEUR') && p.etatRealisation && !p.etatFacturation && (
-                          <button className="btn btn-primary btn-xs" onClick={() => toggleState(p, 'facturation')} title="Marquer facturée" style={{ padding: '2px 4px' }}>
-                            <Receipt size={10} />
-                          </button>
-                        )}
-                        {hasRole('COMPTABLE', 'ADMINISTRATEUR') && p.etatFacturation && !p.etatPaiement && (
-                          <button className="btn btn-warning btn-xs" onClick={() => toggleState(p, 'paiement')} title="Marquer payée" style={{ padding: '2px 4px' }}>
-                            <DollarSign size={10} />
-                          </button>
                         )}
                       </div>
                     </td>
@@ -281,6 +359,10 @@ export default function PhasesPage() {
           </div>
         )}
       </div>
+
+      <Modal open={modal === 'add'} onClose={() => setModal(null)} title="Nouvelle phase" size="lg">
+        <PhaseForm onSave={handleCreate} onClose={() => setModal(null)} />
+      </Modal>
 
       <Modal open={modal === 'edit'} onClose={() => setModal(null)} title="Modifier la phase" size="lg">
         <PhaseForm initial={selected} projetId={selected?.projetId} onSave={handleUpdate} onClose={() => setModal(null)} />

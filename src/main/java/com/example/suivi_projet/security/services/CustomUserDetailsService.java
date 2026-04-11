@@ -21,13 +21,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         Employe employe = employeRepository.findByLogin(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Employé non trouvé : " + username));
 
-
         String roleName = "ROLE_" + employe.getProfil().getLibelle().toUpperCase().replace(" ", "_");
 
         return new User(
                 employe.getLogin(),
                 employe.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(roleName))
-        );
+                Collections.singletonList(new SimpleGrantedAuthority(roleName)));
     }
 }

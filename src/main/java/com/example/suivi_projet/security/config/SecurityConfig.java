@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/change-password").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/api/employes/disponibles").hasAnyRole("CHEF_PROJET", "ADMINISTRATEUR")
+                        .requestMatchers(HttpMethod.GET, "/api/employes").hasAnyRole("ADMINISTRATEUR", "DIRECTEUR", "CHEF_PROJET")
                         .requestMatchers("/api/employes/**").hasRole("ADMINISTRATEUR")
                         .requestMatchers("/api/profils/**").hasRole("ADMINISTRATEUR")
 
@@ -62,7 +63,7 @@ public class SecurityConfig {
 
 
                         .requestMatchers(HttpMethod.GET, "/api/projets/*/phases").hasAnyRole("SECRETAIRE", "CHEF_PROJET")                        // 3. ORGANISMES (UC1)
-                        .requestMatchers(HttpMethod.GET, "/api/projets/**").hasAnyRole("SECRETAIRE", "DIRECTEUR")
+                        .requestMatchers(HttpMethod.GET, "/api/projets/**").hasAnyRole("SECRETAIRE", "DIRECTEUR", "CHEF_PROJET")
                         .requestMatchers("/api/projets/**").hasRole("DIRECTEUR")
                         .requestMatchers("/api/organismes/**").hasAnyRole("SECRETAIRE")
 

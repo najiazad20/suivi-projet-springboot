@@ -135,11 +135,13 @@ export default function OrganismesPage() {
           <div className="table-wrapper">
             <table>
               <thead><tr>
+                {hasRole('DIRECTEUR', 'ADMINISTRATEUR') && <th>ID</th>}
                 <th>Code</th><th>Nom</th><th>Contact</th><th>Téléphone</th><th>Email</th><th>Actions</th>
               </tr></thead>
               <tbody>
                 {filtered.map(o => (
                   <tr key={o.id}>
+                    {hasRole('DIRECTEUR', 'ADMINISTRATEUR') && <td><span className="badge badge-gray">{o.id}</span></td>}
                     <td><code style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{o.code}</code></td>
                     <td>
                       <div style={{ fontWeight: 500 }}>{o.nom}</div>

@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import Modal, { ConfirmModal } from '../../components/common/Modal';
-import { Search, Package, Download, Pencil, Trash2 } from 'lucide-react';
+import { Search, Package, Download, Pencil, Trash2, Plus } from 'lucide-react';
 
 function LivrableForm({ onSave, onClose, initial }) {
   const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues: initial || {} });
@@ -25,6 +25,14 @@ function LivrableForm({ onSave, onClose, initial }) {
             {...register('libelle', { required: 'Requis' })} />
           {errors.libelle && <span className="form-error">{errors.libelle.message}</span>}
         </div>
+        {!initial && (
+          <div className="form-group" style={{ gridColumn: 'span 2' }}>
+            <label className="form-label">ID Phase</label>
+            <input className="form-control" type="number" placeholder="Ex: 1"
+              {...register('phaseId', { required: 'ID phase requis', valueAsNumber: true })} />
+            {errors.phaseId && <span className="form-error">{errors.phaseId.message}</span>}
+          </div>
+        )}
         <div className="form-group" style={{ gridColumn: 'span 2' }}>
           <label className="form-label">Chemin / URL</label>
           <input className="form-control" placeholder="/uploads/livrable.pdf"
@@ -56,9 +64,17 @@ export default function LivrablesPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const projRes = await projetService.getAll();
+      // Chargement résilient des projets
+      let projetsList = [];
+      try {
+        const projRes = await projetService.getAll();
+        projetsList = projRes.data;
+      } catch (e) {
+        console.warn("Accès projets restreint", e);
+      }
+
       const allPhases = await Promise.all(
-        projRes.data.map(p =>
+        projetsList.map(p =>
           phaseService.getByProjet(p.id)
             .then(r => r.data.map(ph => ({ ...ph, projetNom: p.nom, projetId: p.id })))
             .catch(() => [])
@@ -76,8 +92,12 @@ export default function LivrablesPage() {
       const flat = allLivrables.flat();
       setItems(flat);
       setFiltered(flat);
-    } catch { toast.error('Erreur de chargement'); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+      toast.error('Erreur lors du chargement des livrables');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -93,13 +113,28 @@ export default function LivrablesPage() {
     ));
   }, [search, items]);
 
+  const handleCreate = async (data) => {
+    try {
+      await livrableService.create(data.phaseId, data);
+      toast.success('Livrable ajouté');
+      setModal(null);
+      load();
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
+  };
+
   const handleUpdate = async (data) => {
     try {
       await livrableService.update(selected.id, data);
       toast.success('Livrable mis à jour');
       setModal(null);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Erreur'); }
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
   };
 
   const handleDelete = async () => {
@@ -118,6 +153,12 @@ export default function LivrablesPage() {
           <h1 className="page-title">Livrables</h1>
           <p className="page-subtitle">{filtered.length} livrable(s)</p>
         </div>
+        {hasRole('CHEF_PROJET', 'DIRECTEUR', 'ADMINISTRATEUR') && (
+          <button className="btn btn-primary" onClick={() => { setSelected(null); setModal('add'); }}>
+            <Plus size={16} />
+            <span>Nouveau livrable</span>
+          </button>
+        )}
       </div>
 
       <div className="card mb-6">
@@ -197,6 +238,10 @@ export default function LivrablesPage() {
           </div>
         )}
       </div>
+
+      <Modal open={modal === 'add'} onClose={() => setModal(null)} title="Ajouter un livrable" size="lg">
+        <LivrableForm onSave={handleCreate} onClose={() => setModal(null)} />
+      </Modal>
 
       <Modal open={modal === 'edit'} onClose={() => setModal(null)} title="Modifier le livrable" size="lg">
         <LivrableForm initial={selected} onSave={handleUpdate} onClose={() => setModal(null)} />

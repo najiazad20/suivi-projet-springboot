@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { employeService, affectationService } from '../../services/services';
+import { employeService, affectationService, projetService, phaseService } from '../../services/services';
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import Modal, { ConfirmModal } from '../../components/common/Modal';
 import { Search, UserCheck, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 
-function AffectationForm({ employes, onSave, onClose, initial }) {
+function AffectationForm({ employes, projets, onSave, onClose, initial }) {
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: initial ? {
       ...initial,
@@ -19,13 +19,27 @@ function AffectationForm({ employes, onSave, onClose, initial }) {
   return (
     <form onSubmit={handleSubmit(onSave)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {!initial && (
-        <div className="form-group">
-          <label className="form-label">Employé</label>
-          <select className="form-control" {...register('employeId', { required: 'Requis', valueAsNumber: true })}>
-            <option value="">-- Sélectionner --</option>
-            {employes.map(e => <option key={e.id} value={e.id}>{e.prenom} {e.nom} · {e.profil?.libelle}</option>)}
-          </select>
-          {errors.employeId && <span className="form-error">{errors.employeId.message}</span>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="form-group">
+            <label className="form-label">Phase</label>
+            <select className="form-control" {...register('phaseId', { required: 'Requis', valueAsNumber: true })}>
+              <option value="">-- Sélectionner Phase --</option>
+              {projets.map(p => (
+                <optgroup key={p.id} label={p.nom}>
+                  {p.phases?.map(ph => <option key={ph.id} value={ph.id}>{ph.libelle} ({ph.code})</option>)}
+                </optgroup>
+              ))}
+            </select>
+            {errors.phaseId && <span className="form-error">{errors.phaseId.message}</span>}
+          </div>
+          <div className="form-group">
+            <label className="form-label">Employé</label>
+            <select className="form-control" {...register('employeId', { required: 'Requis', valueAsNumber: true })}>
+              <option value="">-- Sélectionner Employé --</option>
+              {employes.map(e => <option key={e.id} value={e.id}>{e.prenom} {e.nom} · {e.profil?.libelle}</option>)}
+            </select>
+            {errors.employeId && <span className="form-error">{errors.employeId.message}</span>}
+          </div>
         </div>
       )}
       <div className="form-grid">
@@ -52,6 +66,7 @@ function AffectationForm({ employes, onSave, onClose, initial }) {
 
 export default function AffectationsPage() {
   const { hasRole } = useAuth();
+  const [projets, setProjets]     = useState([]);
   const [employes, setEmployes]   = useState([]);
   const [data, setData]           = useState([]); // [{employe, phases:[]}]
   const [filtered, setFiltered]   = useState([]);
@@ -64,22 +79,42 @@ export default function AffectationsPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const empRes = await employeService.getAll();
-      setEmployes(empRes.data);
-      // For each employee, get their phases
-      const rows = await Promise.all(
-        empRes.data.map(async e => {
-          try {
-            const r = await affectationService.getByEmploye(e.id);
-            return { employe: e, phases: r.data };
-          } catch { return { employe: e, phases: [] }; }
-        })
-      );
-      const active = rows.filter(r => r.phases.length > 0);
-      setData(active);
-      setFiltered(active);
-    } catch { toast.error('Erreur de chargement'); }
-    finally { setLoading(false); }
+      // Load employees (essential)
+      try {
+        const empRes = await employeService.getAll();
+        setEmployes(empRes.data);
+
+        // Load projects to get phase list for the select
+        try {
+          const prRes = await projetService.getAll();
+          // For each project, load its phases
+          const projsWithPhases = await Promise.all(prRes.data.map(async p => {
+            try {
+              const phRes = await phaseService.getByProjet(p.id);
+              return { ...p, phases: phRes.data };
+            } catch { return { ...p, phases: [] }; }
+          }));
+          setProjets(projsWithPhases);
+        } catch (e) { console.warn("Access projects/phases restricted", e); }
+
+        // For each employee, get their phase assignments
+        const rows = await Promise.all(
+          empRes.data.map(async e => {
+            try {
+              const r = await affectationService.getByEmploye(e.id);
+              return { employe: e, phases: r.data };
+            } catch { return { employe: e, phases: [] }; }
+          })
+        );
+        const active = rows.filter(r => r.phases.length > 0);
+        setData(active);
+        setFiltered(active);
+      } catch (e) {
+        console.error("Erreur employes", e);
+      }
+    } catch { 
+       // Silent
+    } finally { setLoading(false); }
   };
 
   useEffect(() => { load(); }, []);
@@ -94,17 +129,30 @@ export default function AffectationsPage() {
     ));
   }, [search, data]);
 
+  const handleCreate = async (formData) => {
+    try {
+      const { phaseId, employeId, ...rest } = formData;
+      await affectationService.create(phaseId, employeId, rest);
+      toast.success('Affectation créée');
+      setModal(null);
+      load();
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
+  };
+
   const handleUpdate = async (formData) => {
     try {
       const { phaseId, employeId } = selected;
-      await affectationService.update(phaseId, employeId, {
-        dateDebut: formData.dateDebut,
-        dateFin: formData.dateFin
-      });
+      await affectationService.update(phaseId, employeId, formData);
       toast.success('Affectation mise à jour');
       setModal(null);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Erreur'); }
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
   };
 
   const handleDelete = async () => {
@@ -121,8 +169,13 @@ export default function AffectationsPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Affectations</h1>
-          <p className="page-subtitle">Vue globale des affectations employé–phase</p>
+          <p className="page-subtitle">Gestion des affectations des employés aux phases</p>
         </div>
+        {hasRole('CHEF_PROJET', 'ADMINISTRATEUR') && (
+          <button className="btn btn-primary" onClick={() => { setSelected(null); setModal('add'); }}>
+            <UserCheck size={16} /> Nouvelle Affectation
+          </button>
+        )}
       </div>
 
       <div className="card mb-6">
@@ -199,8 +252,12 @@ export default function AffectationsPage() {
         </div>
       )}
 
+      <Modal open={modal === 'add'} onClose={() => setModal(null)} title="Nouvelle affectation">
+        <AffectationForm employes={employes} projets={projets} onSave={handleCreate} onClose={() => setModal(null)} />
+      </Modal>
+
       <Modal open={modal === 'edit'} onClose={() => setModal(null)} title="Modifier l'affectation">
-        <AffectationForm employes={employes} initial={selected} onSave={handleUpdate} onClose={() => setModal(null)} />
+        <AffectationForm initial={selected} onSave={handleUpdate} onClose={() => setModal(null)} />
       </Modal>
 
       <ConfirmModal open={!!deleteTarget} onClose={() => setDel(null)} onConfirm={handleDelete} message="Supprimer cette affectation ?" />

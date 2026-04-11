@@ -29,7 +29,7 @@ public class ProjetController {
     }
 
     // GET ALL
-    @PreAuthorize("hasAnyRole('SECRETAIRE', 'DIRECTEUR')")
+    @PreAuthorize("hasAnyRole('SECRETAIRE', 'DIRECTEUR', 'CHEF_PROJET')")
     @GetMapping
     public List<ProjetResponseDTO> getAllProjets() {
         return projetService.getAllProjets();
@@ -46,14 +46,16 @@ public class ProjetController {
     @PreAuthorize("hasAnyRole('DIRECTEUR')")
     @PutMapping("/{id}")
     public ProjetResponseDTO updateProjet(@PathVariable int id,
-                                          @Valid @RequestBody ProjetRequestDTO dto) {
+            @Valid @RequestBody ProjetRequestDTO dto) {
         return projetService.updateProjet(id, dto);
     }
+
     @PreAuthorize("hasRole('DIRECTEUR')")
     @PatchMapping("/{id}/montant")
     public ProjetResponseDTO updateMontant(@PathVariable int id, @RequestParam double montant) {
         return projetService.updateMontant(id, montant);
     }
+
     // DELETE
     @PreAuthorize("hasRole('DIRECTEUR')")
     @DeleteMapping("/{id}")
@@ -75,6 +77,7 @@ public class ProjetController {
     public List<ProjetResponseDTO> getByMontant(@PathVariable double montant) {
         return projetService.getByMontant(montant);
     }
+
     @PreAuthorize("hasRole('DIRECTEUR')")
     @PatchMapping("/{id}/affecter-chef")
     public ProjetResponseDTO affecterChef(@PathVariable int id, @RequestParam int chefId) {

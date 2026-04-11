@@ -5,9 +5,10 @@ import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import Modal, { ConfirmModal } from '../../components/common/Modal';
-import { Plus, Search, Pencil, Trash2, FolderKanban, Eye, TrendingUp } from 'lucide-react';
+import { Search, Plus, Eye, Pencil, Trash2, UserPlus, DollarSign } from 'lucide-react';
 
 function ProjetForm({ initial, organismes, employes, onSave, onClose }) {
+  const { hasRole } = useAuth();
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: initial ? {
       ...initial,
@@ -52,19 +53,15 @@ function ProjetForm({ initial, organismes, employes, onSave, onClose }) {
           {errors.montant && <span className="form-error">{errors.montant.message}</span>}
         </div>
         <div className="form-group">
-          <label className="form-label">Organisme</label>
-          <select className="form-control" {...register('organismeId', { required: 'Requis', valueAsNumber: true })}>
-            <option value="">-- Sélectionner --</option>
-            {organismes.map(o => <option key={o.id} value={o.id}>{o.nom}</option>)}
-          </select>
+          <label className="form-label">ID Organisme</label>
+          <input className="form-control" type="number" placeholder="Ex: 5"
+            {...register('organismeId', { required: 'ID Organisme requis', valueAsNumber: true })} />
           {errors.organismeId && <span className="form-error">{errors.organismeId.message}</span>}
         </div>
         <div className="form-group" style={{ gridColumn: 'span 2' }}>
-          <label className="form-label">Chef de projet</label>
-          <select className="form-control" {...register('chefProjetId', { required: 'Requis', valueAsNumber: true })}>
-            <option value="">-- Sélectionner --</option>
-            {employes.map(e => <option key={e.id} value={e.id}>{e.prenom} {e.nom} ({e.profil?.libelle})</option>)}
-          </select>
+          <label className="form-label">ID Chef de projet</label>
+          <input className="form-control" type="number" placeholder="Ex: 12"
+            {...register('chefProjetId', { required: 'ID Chef requis', valueAsNumber: true })} />
           {errors.chefProjetId && <span className="form-error">{errors.chefProjetId.message}</span>}
         </div>
         <div className="form-group" style={{ gridColumn: 'span 2' }}>
@@ -94,18 +91,30 @@ export default function ProjetsPage() {
   const [deleteId, setDeleteId]   = useState(null);
 
   const load = async () => {
+    setLoading(true);
     try {
-      const [pRes, oRes, eRes] = await Promise.all([
-        projetService.getAll(),
-        organismeService.getAll(),
-        employeService.getAll(),
-      ]);
+      // On lance le chargement des projets
+      const pRes = await projetService.getAll();
       setItems(pRes.data);
-      setFiltered(pRes.data);
-      setOrganismes(oRes.data);
-      setEmployes(eRes.data);
-    } catch { toast.error('Erreur de chargement'); }
-    finally { setLoading(false); }
+      if (!search) setFiltered(pRes.data);
+
+      // On charge le reste de manière résiliente : si l'un échoue (ex: 403), on continue
+      try {
+        const oRes = await organismeService.getAll();
+        setOrganismes(oRes.data);
+      } catch (e) { console.warn("Organismes non chargés (Access Denied ?)", e); }
+
+      try {
+        const eRes = await employeService.getAll();
+        setEmployes(eRes.data);
+      } catch (e) { console.warn("Employés non chargés (Access Denied ?)", e); }
+
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur de chargement';
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -131,8 +140,33 @@ export default function ProjetsPage() {
       }
       setModal(null);
       load();
+      setSearch('');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Erreur');
+    }
+  };
+
+  const handleUpdateMontant = async (val) => {
+    try {
+        await projetService.updateMontant(selected.id, val);
+        toast.success('Montant mis à jour');
+        setModal(null);
+        load();
+    } catch (err) {
+        const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+        toast.error(msg);
+    }
+  };
+
+  const handleAffectChef = async (val) => {
+    try {
+        await projetService.affecterChef(selected.id, val);
+        toast.success('Chef de projet affecté');
+        setModal(null);
+        load();
+    } catch (err) {
+        const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+        toast.error(msg);
     }
   };
 
@@ -158,30 +192,57 @@ export default function ProjetsPage() {
         )}
       </div>
 
-      <div className="card mb-6">
-        <div className="search-bar" style={{ maxWidth: 400 }}>
+      <div className="card mb-6" style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="search-bar" style={{ flex: 1, minWidth: 250 }}>
           <Search size={15} color="var(--text-muted)" />
           <input placeholder="Nom, code, organisme..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
+
+        {hasRole('DIRECTEUR', 'ADMINISTRATEUR') && (
+            <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn btn-secondary btn-sm" onClick={async () => {
+                    const code = prompt("Entrez le code du projet :");
+                    if (code) {
+                        try {
+                            const res = await projetService.getByCode(code);
+                            setFiltered([res.data]);
+                        } catch { toast.error("Projet introuvable"); }
+                    }
+                }}>Par Code</button>
+                <button className="btn btn-secondary btn-sm" onClick={async () => {
+                    const m = prompt("Entrez le montant exact :");
+                    if (m) {
+                        try {
+                            const res = await projetService.getByMontant(Number(m));
+                            setFiltered(res.data);
+                        } catch { toast.error("Aucun projet trouvé"); }
+                    }
+                }}>Par Montant</button>
+                <button className="btn btn-text btn-sm" onClick={load}>Réinitialiser</button>
+            </div>
+        )}
       </div>
 
       <div className="card" style={{ padding: 0 }}>
         {loading ? <div className="loading-center"><div className="spinner" /></div>
         : filtered.length === 0 ? (
-          <div className="empty-state"><FolderKanban size={40} /><p>Aucun projet</p></div>
+          <div className="empty-state"><div /> <p>Aucun projet</p></div>
         ) : (
           <div className="table-wrapper">
             <table>
               <thead><tr>
-                <th>Code</th><th>Nom</th><th>Organisme</th><th>Chef de projet</th><th>Budget</th><th>Période</th><th>Actions</th>
+                {hasRole('DIRECTEUR', 'ADMINISTRATEUR') && <th>ID</th>}
+                <th>Code</th><th>Nom</th><th>Organisme</th>
+                <th>Chef de projet</th>
+                <th>Budget</th><th>Période</th><th>Actions</th>
               </tr></thead>
               <tbody>
                 {filtered.map(p => (
                   <tr key={p.id}>
+                    {hasRole('DIRECTEUR', 'ADMINISTRATEUR') && <td><span className="badge badge-gray">{p.id}</span></td>}
                     <td><code style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{p.code}</code></td>
                     <td>
                       <div style={{ fontWeight: 500 }}>{p.nom}</div>
-                      {p.description?.includes('CLÔTURÉ') && <span className="badge badge-gray" style={{ fontSize: '0.65rem' }}>Clôturé</span>}
                     </td>
                     <td>{p.organisme?.nom}</td>
                     <td>{p.chefProjet?.prenom} {p.chefProjet?.nom}</td>
@@ -196,15 +257,25 @@ export default function ProjetsPage() {
                         <Link to={`/projets/${p.id}`} className="btn btn-secondary btn-icon btn-sm" title="Détail">
                           <Eye size={13} />
                         </Link>
-                        {hasRole('DIRECTEUR','ADMINISTRATEUR','SECRETAIRE') && (
+                        {hasRole('DIRECTEUR') && (
                           <>
-                            <button className="btn btn-secondary btn-icon btn-sm" onClick={() => { setSelected(p); setModal('edit'); }}>
-                              <Pencil size={13} />
+                            <button className="btn btn-secondary btn-icon btn-sm" title="Mettre à jour montant" onClick={() => { setSelected(p); setModal('update-montant'); }}>
+                                <DollarSign size={13} />
                             </button>
-                            <button className="btn btn-danger btn-icon btn-sm" onClick={() => setDeleteId(p.id)}>
-                              <Trash2 size={13} />
+                            <button className="btn btn-secondary btn-icon btn-sm" title="Affecter chef" onClick={() => { setSelected(p); setModal('affect-chef'); }}>
+                                <UserPlus size={13} />
                             </button>
                           </>
+                        )}
+                        {hasRole('SECRETAIRE','ADMINISTRATEUR') && (
+                          <button className="btn btn-secondary btn-icon btn-sm" title="Modifier" onClick={() => { setSelected(p); setModal('edit'); }}>
+                            <Pencil size={13} />
+                          </button>
+                        )}
+                        {hasRole('ADMINISTRATEUR') && (
+                          <button className="btn btn-danger btn-icon btn-sm" title="Supprimer" onClick={() => setDeleteId(p.id)}>
+                            <Trash2 size={13} />
+                          </button>
                         )}
                       </div>
                     </td>
@@ -222,8 +293,35 @@ export default function ProjetsPage() {
           onSave={handleSave} onClose={() => setModal(null)} />
       </Modal>
 
-      <ConfirmModal open={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete}
-        message="Supprimer ce projet et toutes ses données ?" />
+      {/* Modal Affectation Chef */}
+      <Modal open={modal === 'affect-chef'} onClose={() => setModal(null)} title="Affecter un chef de projet">
+        <form onSubmit={(e) => { e.preventDefault(); handleAffectChef(Number(e.target.chefId.value)); }} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="form-group">
+            <label className="form-label">ID du chef de projet</label>
+            <input name="chefId" type="number" className="form-control" required placeholder="Ex: 5" />
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={() => setModal(null)}>Annuler</button>
+            <button type="submit" className="btn btn-primary">Affecter</button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Modal Montant */}
+      <Modal open={modal === 'update-montant'} onClose={() => setModal(null)} title="Mettre à jour le budget">
+        <form onSubmit={(e) => { e.preventDefault(); handleUpdateMontant(Number(e.target.montant.value)); }} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="form-group">
+            <label className="form-label">Nouveau montant (MAD)</label>
+            <input name="montant" type="number" className="form-control" required placeholder="Ex: 50000" defaultValue={selected?.montant} />
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={() => setModal(null)}>Annuler</button>
+            <button type="submit" className="btn btn-primary">Mettre à jour</button>
+          </div>
+        </form>
+      </Modal>
+
+      <ConfirmModal open={!!deleteId} onClose={() => setDeleteId(null)} onConfirm={handleDelete} message="Supprimer ce projet ?" />
     </div>
   );
 }

@@ -10,7 +10,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/dashboard';
-  
+
   const [mode, setMode] = useState('login'); // 'login' or 'forgot'
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);

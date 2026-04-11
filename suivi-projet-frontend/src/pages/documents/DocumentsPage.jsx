@@ -20,11 +20,9 @@ function DocumentForm({ projets, initial, onSave, onClose }) {
       <div className="form-grid">
         {!initial && (
           <div className="form-group" style={{ gridColumn: 'span 2' }}>
-            <label className="form-label">Projet</label>
-            <select className="form-control" {...register('projetId', { required: 'Requis', valueAsNumber: true })}>
-              <option value="">-- Sélectionner un projet --</option>
-              {projets?.map(p => <option key={p.id} value={p.id}>{p.nom}</option>)}
-            </select>
+            <label className="form-label">ID Projet</label>
+            <input className="form-control" type="number" placeholder="Ex: 1"
+              {...register('projetId', { required: 'ID projet requis', valueAsNumber: true })} />
             {errors.projetId && <span className="form-error">{errors.projetId.message}</span>}
           </div>
         )}
@@ -72,10 +70,18 @@ export default function DocumentsPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const projRes = await projetService.getAll();
-      setProjets(projRes.data);
+      // Chargement résilient des projets
+      let projetsList = [];
+      try {
+        const projRes = await projetService.getAll();
+        projetsList = projRes.data;
+        setProjets(projetsList);
+      } catch (e) {
+        console.warn("Accès projets restreint", e);
+      }
+
       const allDocs = await Promise.all(
-        projRes.data.map(p =>
+        projetsList.map(p =>
           documentService.getByProjet(p.id)
             .then(r => r.data.map(d => ({ ...d, projetNom: p.nom, projetId: p.id })))
             .catch(() => [])
@@ -84,8 +90,12 @@ export default function DocumentsPage() {
       const flat = allDocs.flat();
       setItems(flat);
       setFiltered(flat);
-    } catch { toast.error('Erreur de chargement'); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+      toast.error('Erreur lors du chargement des documents');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -106,7 +116,10 @@ export default function DocumentsPage() {
       toast.success('Document ajouté');
       setModal(null);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Erreur'); }
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
   };
 
   const handleUpdate = async (data) => {
@@ -115,7 +128,10 @@ export default function DocumentsPage() {
       toast.success('Document mis à jour');
       setModal(null);
       load();
-    } catch (err) { toast.error(err.response?.data?.message || 'Erreur'); }
+    } catch (err) {
+      const msg = typeof err.response?.data === 'string' ? err.response.data : err.response?.data?.message || 'Erreur';
+      toast.error(msg);
+    }
   };
 
   const handleDelete = async () => {
@@ -134,10 +150,10 @@ export default function DocumentsPage() {
           <h1 className="page-title">Documents</h1>
           <p className="page-subtitle">{filtered.length} document(s)</p>
         </div>
-        {hasRole('SECRETAIRE', 'CHEF_PROJET', 'ADMINISTRATEUR') && (
+        {hasRole('CHEF_PROJET', 'DIRECTEUR', 'SECRETAIRE', 'ADMINISTRATEUR') && (
           <button className="btn btn-primary" onClick={() => { setSelected(null); setModal('add'); }}>
             <Plus size={16} />
-            <span>Nouveau Document</span>
+            <span>Nouveau document</span>
           </button>
         )}
       </div>

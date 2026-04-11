@@ -14,6 +14,7 @@ public interface EmployeRepository extends JpaRepository<Employe, Integer> {
     Employe findByMatricule(String matricule);
 
     java.util.Optional<Employe> findByLogin(String login);
+
     @Query("SELECT e FROM Employe e WHERE e.id NOT IN (" +
             "SELECT l.employe.id FROM LigneEmployePhase l " +
             "WHERE (l.dateDebut <= :dateFin AND l.dateFin >= :dateDebut))")

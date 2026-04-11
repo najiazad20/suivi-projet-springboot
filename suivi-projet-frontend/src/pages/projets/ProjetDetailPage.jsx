@@ -114,12 +114,12 @@ export default function ProjetDetailPage() {
   const navigate = useNavigate();
   const { hasRole } = useAuth();
 
-  const [projet, setProjet]     = useState(null);
-  const [phases, setPhases]     = useState([]);
-  const [docs, setDocs]         = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [tab, setTab]           = useState('phases');
-  const [modal, setModal]       = useState(null);
+  const [projet, setProjet] = useState(null);
+  const [phases, setPhases] = useState([]);
+  const [docs, setDocs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState('phases');
+  const [modal, setModal] = useState(null);
   const [selected, setSelected] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [deleteType, setDeleteType] = useState(null);
@@ -173,7 +173,7 @@ export default function ProjetDetailPage() {
   const handleDelete = async () => {
     try {
       if (deleteType === 'phase') { await phaseService.delete(deleteId); toast.success('Phase supprimée'); }
-      if (deleteType === 'doc')   { await documentService.delete(deleteId); toast.success('Document supprimé'); }
+      if (deleteType === 'doc') { await documentService.delete(deleteId); toast.success('Document supprimé'); }
       load();
     } catch { toast.error('Erreur de suppression'); }
   };
@@ -182,7 +182,7 @@ export default function ProjetDetailPage() {
     try {
       if (type === 'realisation') await phaseService.setRealisation(phase.id);
       if (type === 'facturation') await phaseService.setFacturation(phase.id);
-      if (type === 'paiement')    await phaseService.setPaiement(phase.id);
+      if (type === 'paiement') await phaseService.setPaiement(phase.id);
       toast.success('État mis à jour');
       load();
     } catch (err) { toast.error(err.response?.data?.message || 'Erreur'); }
@@ -233,7 +233,7 @@ export default function ProjetDetailPage() {
           </div>
           <div>
             <div className="stat-label">Budget</div>
-            <div className="stat-value" style={{ fontSize: '1.2rem' }}>{(projet.montant/1000).toFixed(0)}k MAD</div>
+            <div className="stat-value" style={{ fontSize: '1.2rem' }}>{(projet.montant / 1000).toFixed(0)}k MAD</div>
           </div>
         </div>
         <div className="stat-card">
@@ -303,7 +303,7 @@ export default function ProjetDetailPage() {
       {tab === 'phases' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
-            {hasRole('CHEF_PROJET','ADMINISTRATEUR') && (
+            {hasRole('CHEF_PROJET', 'DIRECTEUR', 'ADMINISTRATEUR') && (
               <button className="btn btn-primary btn-sm" onClick={() => { setSelected(null); setModal('add-phase'); }}>
                 <Plus size={14} /> Ajouter une phase
               </button>
@@ -349,7 +349,7 @@ export default function ProjetDetailPage() {
                         <Link to={`/phases/${phase.id}`} className="btn btn-secondary btn-sm btn-icon" title="Détail">
                           <ChevronRight size={13} />
                         </Link>
-                        {hasRole('CHEF_PROJET','ADMINISTRATEUR') && (
+                        {hasRole('CHEF_PROJET', 'ADMINISTRATEUR') && (
                           <>
                             <button className="btn btn-secondary btn-sm btn-icon" onClick={() => { setSelected(phase); setModal('edit-phase'); }}>
                               <Pencil size={13} />
@@ -363,17 +363,17 @@ export default function ProjetDetailPage() {
 
                       {/* Action buttons */}
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                        {hasRole('CHEF_PROJET','ADMINISTRATEUR') && !phase.etatRealisation && (
+                        {hasRole('CHEF_PROJET', 'DIRECTEUR', 'ADMINISTRATEUR') && !phase.etatRealisation && (
                           <button className="btn btn-success btn-sm" onClick={() => togglePhaseState(phase, 'realisation')}>
                             <CheckCircle size={12} /> Marquer réalisée
                           </button>
                         )}
-                        {hasRole('COMPTABLE','ADMINISTRATEUR') && phase.etatRealisation && !phase.etatFacturation && (
+                        {hasRole('COMPTABLE', 'DIRECTEUR', 'ADMINISTRATEUR') && phase.etatRealisation && !phase.etatFacturation && (
                           <button className="btn btn-primary btn-sm" onClick={() => togglePhaseState(phase, 'facturation')}>
                             Marquer facturée
                           </button>
                         )}
-                        {hasRole('COMPTABLE','ADMINISTRATEUR') && phase.etatFacturation && !phase.etatPaiement && (
+                        {hasRole('COMPTABLE', 'DIRECTEUR', 'ADMINISTRATEUR') && phase.etatFacturation && !phase.etatPaiement && (
                           <button className="btn btn-warning btn-sm" onClick={() => togglePhaseState(phase, 'paiement')}>
                             Marquer payée
                           </button>
@@ -392,7 +392,7 @@ export default function ProjetDetailPage() {
       {tab === 'documents' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
-            {hasRole('CHEF_PROJET','DIRECTEUR','SECRETAIRE','ADMINISTRATEUR') && (
+            {hasRole('CHEF_PROJET', 'DIRECTEUR', 'SECRETAIRE', 'ADMINISTRATEUR') && (
               <button className="btn btn-primary btn-sm" onClick={() => { setSelected(null); setModal('add-doc'); }}>
                 <Plus size={14} /> Ajouter un document
               </button>
