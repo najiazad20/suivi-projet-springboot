@@ -212,7 +212,7 @@ npm start
 ---
 
 ### 🗂️ Secrétaire
-
+---
 
 ### 📊 Chef de Projet
 
