@@ -211,7 +211,10 @@ npm start
 ### 📊 Chef de Projet
 
 
+### 🧾 Comptable
 
+
+### 🗂️ Secrétaire
 
 
    ## 🧪 Tests Swagger
