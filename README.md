@@ -218,8 +218,6 @@ https://github.com/user-attachments/assets/d50f75a1-7ba2-4975-87b3-c7152e60ffdf
 ### 📊 Démonstration - Chef de Projet
 https://github.com/user-attachments/assets/033f9073-af61-4808-ada6-3d25c86c9619
 
-## 🎥 Demonstration video :
-  https://github.com/user-attachments/assets/15a7eef2-def9-4c6f-a9a7-328f511a11b1
 
 
 
