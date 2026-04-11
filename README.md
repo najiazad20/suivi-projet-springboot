@@ -199,9 +199,7 @@ npm start
 ## 📡 API Documentation
 ## http://localhost:8080/v3/api-docs
 
----
-## 🎥 Demonstration video :
-  https://github.com/user-attachments/assets/15a7eef2-def9-4c6f-a9a7-328f511a11b1
+
 
 ## 🎥 Vidéos de démonstration par rôle
 
@@ -209,7 +207,7 @@ npm start
  https://github.com/user-attachments/assets/74b61834-5819-4c37-877b-a05f79269df2
 
 ### 🧾 Démonstration - Comptable
----
+https://github.com/user-attachments/assets/7f8af92a-d2dd-48b7-a027-1ef3fce8b044
 
 ### 🗂️ Démonstration - Secrétaire
 ---
@@ -220,6 +218,9 @@ npm start
 ### 🧑‍💼 Démonstration - Directeur
 
 ---
+---
+## 🎥 Demonstration video :
+  https://github.com/user-attachments/assets/15a7eef2-def9-4c6f-a9a7-328f511a11b1
 
 
 
