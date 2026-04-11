@@ -209,16 +209,14 @@ npm start
 ### 🧾 Démonstration - Comptable
 https://github.com/user-attachments/assets/7f8af92a-d2dd-48b7-a027-1ef3fce8b044
 
+### 🧑‍💼 Démonstration - Directeur
+https://github.com/user-attachments/assets/cfa69cd8-b784-4593-ad57-f614a692eecd
 ### 🗂️ Démonstration - Secrétaire
 ---
 
 ### 📊 Démonstration - Chef de Projet
----
+https://github.com/user-attachments/assets/033f9073-af61-4808-ada6-3d25c86c9619
 
-### 🧑‍💼 Démonstration - Directeur
-
----
----
 ## 🎥 Demonstration video :
   https://github.com/user-attachments/assets/15a7eef2-def9-4c6f-a9a7-328f511a11b1
 
