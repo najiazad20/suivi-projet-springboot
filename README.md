@@ -213,7 +213,7 @@ https://github.com/user-attachments/assets/7f8af92a-d2dd-48b7-a027-1ef3fce8b044
 ### 🧑‍💼 Démonstration - Directeur
 https://github.com/user-attachments/assets/cfa69cd8-b784-4593-ad57-f614a692eecd
 ### 🗂️ Démonstration - Secrétaire
----
+https://github.com/user-attachments/assets/d50f75a1-7ba2-4975-87b3-c7152e60ffdf
 
 ### 📊 Démonstration - Chef de Projet
 https://github.com/user-attachments/assets/033f9073-af61-4808-ada6-3d25c86c9619
