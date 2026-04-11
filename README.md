@@ -206,7 +206,7 @@ npm start
 ## 🎥 Vidéos de démonstration par rôle
 
 ### 👑 Administrateur
-
+---
 
 ### 🧾 Comptable
 
