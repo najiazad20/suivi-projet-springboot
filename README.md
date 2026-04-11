@@ -208,13 +208,19 @@ npm start
 ### 👑 Administrateur
 
 
-### 📊 Chef de Projet
-
-
 ### 🧾 Comptable
 
 
 ### 🗂️ Secrétaire
+
+
+### 📊 Chef de Projet
+
+
+
+
+
+
 
 
    ## 🧪 Tests Swagger
