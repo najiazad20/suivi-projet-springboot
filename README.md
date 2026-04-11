@@ -196,12 +196,23 @@ npm start
 - Suivi des projets
 
 
-  ## 📡 API Documentation
- ## http://localhost:8080/v3/api-docs
+## 📡 API Documentation
+## http://localhost:8080/v3/api-docs
 
 ---
-  ## Demonstration video :
+## 🎥 Demonstration video :
   https://github.com/user-attachments/assets/15a7eef2-def9-4c6f-a9a7-328f511a11b1
+
+## 🎥 Vidéos de démonstration par rôle
+
+### 👑 Administrateur
+
+
+### 📊 Chef de Projet
+
+
+
+
 
    ## 🧪 Tests Swagger
 
