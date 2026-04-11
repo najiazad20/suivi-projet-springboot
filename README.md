@@ -216,7 +216,7 @@ npm start
 
 ### 📊 Chef de Projet
 
-
+### 🧑‍💼 Directeur
 
 
 
